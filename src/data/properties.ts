@@ -6,6 +6,7 @@ import phobos from "@/assets/phobos.jpg";
 import crater from "@/assets/crater.jpg";
 import utopia from "@/assets/utopia.jpg";
 import ares from "@/assets/ares.jpg";
+import heroImg from "@/assets/hero-mars.jpg";
 import type { Advertiser, MarsRegion, Property } from "@/types/property";
 
 export const ADMIN_ADVERTISER: Advertiser = {
@@ -133,7 +134,7 @@ export const SEED_PROPERTIES: Property[] = [
     publishedAt: "2026-07-25",
     status: "publicado",
     advertiser: ADMIN_ADVERTISER,
-    images: [phobos, crater, hero()],
+    images: [phobos, crater, heroImg],
   },
   {
     id: "sunset-crater",
@@ -196,8 +197,3 @@ export const SEED_PROPERTIES: Property[] = [
     images: [ares, valles, utopia],
   },
 ];
-
-import heroImg from "@/assets/hero-mars.jpg";
-function hero() {
-  return heroImg;
-}
