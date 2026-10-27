@@ -10,33 +10,63 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
+import { Route as TerrenosIndexRouteImport } from './routes/terrenos.index'
+import { Route as TerrenosIdRouteImport } from './routes/terrenos.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComoFuncionaRoute = ComoFuncionaRouteImport.update({
+  id: '/como-funciona',
+  path: '/como-funciona',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TerrenosIndexRoute = TerrenosIndexRouteImport.update({
+  id: '/terrenos/',
+  path: '/terrenos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TerrenosIdRoute = TerrenosIdRouteImport.update({
+  id: '/terrenos/$id',
+  path: '/terrenos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/como-funciona': typeof ComoFuncionaRoute
+  '/terrenos/$id': typeof TerrenosIdRoute
+  '/terrenos/': typeof TerrenosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/como-funciona': typeof ComoFuncionaRoute
+  '/terrenos/$id': typeof TerrenosIdRoute
+  '/terrenos': typeof TerrenosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/como-funciona': typeof ComoFuncionaRoute
+  '/terrenos/$id': typeof TerrenosIdRoute
+  '/terrenos/': typeof TerrenosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/como-funciona' | '/terrenos/$id' | '/terrenos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/como-funciona' | '/terrenos/$id' | '/terrenos'
+  id: '__root__' | '/' | '/como-funciona' | '/terrenos/$id' | '/terrenos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ComoFuncionaRoute: typeof ComoFuncionaRoute
+  TerrenosIdRoute: typeof TerrenosIdRoute
+  TerrenosIndexRoute: typeof TerrenosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/como-funciona': {
+      id: '/como-funciona'
+      path: '/como-funciona'
+      fullPath: '/como-funciona'
+      preLoaderRoute: typeof ComoFuncionaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terrenos/': {
+      id: '/terrenos/'
+      path: '/terrenos'
+      fullPath: '/terrenos/'
+      preLoaderRoute: typeof TerrenosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terrenos/$id': {
+      id: '/terrenos/$id'
+      path: '/terrenos/$id'
+      fullPath: '/terrenos/$id'
+      preLoaderRoute: typeof TerrenosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ComoFuncionaRoute: ComoFuncionaRoute,
+  TerrenosIdRoute: TerrenosIdRoute,
+  TerrenosIndexRoute: TerrenosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
