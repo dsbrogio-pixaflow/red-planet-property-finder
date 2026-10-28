@@ -56,7 +56,7 @@ export function PropertyForm({
     const errs = validateProperty(v);
     setErrors(errs);
     if (Object.keys(errs).length) return;
-    onSubmit({ ...v, highlight: v.highlight.trim() || v.features[0] });
+    onSubmit({ ...v, highlight: v.highlight.trim() || v.features[0] || "" });
   };
 
   const cancel = () => (dirty ? setConfirmDiscard(true) : onCancel());

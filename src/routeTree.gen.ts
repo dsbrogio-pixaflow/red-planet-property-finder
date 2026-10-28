@@ -10,18 +10,55 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MeusAnunciosRouteImport } from './routes/meus-anuncios'
+import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
+import { Route as AnunciosNovoRouteImport } from './routes/anuncios.novo'
 import { Route as TerrenosIndexRouteImport } from './routes/terrenos.index'
 import { Route as TerrenosIdRouteImport } from './routes/terrenos.$id'
+import { Route as AnunciosIdEditarRouteImport } from './routes/anuncios.$id.editar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ComoFuncionaRoute = ComoFuncionaRouteImport.update({
   id: '/como-funciona',
   path: '/como-funciona',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeusAnunciosRoute = MeusAnunciosRouteImport.update({
+  id: '/meus-anuncios',
+  path: '/meus-anuncios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
+  id: '/recuperar-senha',
+  path: '/recuperar-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnunciosNovoRoute = AnunciosNovoRouteImport.update({
+  id: '/anuncios/novo',
+  path: '/anuncios/novo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TerrenosIndexRoute = TerrenosIndexRouteImport.update({
@@ -34,39 +71,106 @@ const TerrenosIdRoute = TerrenosIdRouteImport.update({
   path: '/terrenos/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnunciosIdEditarRoute = AnunciosIdEditarRouteImport.update({
+  id: '/anuncios/$id/editar',
+  path: '/anuncios/$id/editar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/cadastro': typeof CadastroRoute
   '/como-funciona': typeof ComoFuncionaRoute
+  '/login': typeof LoginRoute
+  '/meus-anuncios': typeof MeusAnunciosRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/anuncios/novo': typeof AnunciosNovoRoute
   '/terrenos/$id': typeof TerrenosIdRoute
   '/terrenos/': typeof TerrenosIndexRoute
+  '/anuncios/$id/editar': typeof AnunciosIdEditarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/cadastro': typeof CadastroRoute
   '/como-funciona': typeof ComoFuncionaRoute
+  '/login': typeof LoginRoute
+  '/meus-anuncios': typeof MeusAnunciosRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/anuncios/novo': typeof AnunciosNovoRoute
   '/terrenos/$id': typeof TerrenosIdRoute
   '/terrenos': typeof TerrenosIndexRoute
+  '/anuncios/$id/editar': typeof AnunciosIdEditarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/cadastro': typeof CadastroRoute
   '/como-funciona': typeof ComoFuncionaRoute
+  '/login': typeof LoginRoute
+  '/meus-anuncios': typeof MeusAnunciosRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/anuncios/novo': typeof AnunciosNovoRoute
   '/terrenos/$id': typeof TerrenosIdRoute
   '/terrenos/': typeof TerrenosIndexRoute
+  '/anuncios/$id/editar': typeof AnunciosIdEditarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/como-funciona' | '/terrenos/$id' | '/terrenos/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/cadastro'
+    | '/como-funciona'
+    | '/login'
+    | '/meus-anuncios'
+    | '/recuperar-senha'
+    | '/anuncios/novo'
+    | '/terrenos/$id'
+    | '/terrenos/'
+    | '/anuncios/$id/editar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/como-funciona' | '/terrenos/$id' | '/terrenos'
-  id: '__root__' | '/' | '/como-funciona' | '/terrenos/$id' | '/terrenos/'
+  to:
+    | '/'
+    | '/admin'
+    | '/cadastro'
+    | '/como-funciona'
+    | '/login'
+    | '/meus-anuncios'
+    | '/recuperar-senha'
+    | '/anuncios/novo'
+    | '/terrenos/$id'
+    | '/terrenos'
+    | '/anuncios/$id/editar'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/cadastro'
+    | '/como-funciona'
+    | '/login'
+    | '/meus-anuncios'
+    | '/recuperar-senha'
+    | '/anuncios/novo'
+    | '/terrenos/$id'
+    | '/terrenos/'
+    | '/anuncios/$id/editar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  CadastroRoute: typeof CadastroRoute
   ComoFuncionaRoute: typeof ComoFuncionaRoute
+  LoginRoute: typeof LoginRoute
+  MeusAnunciosRoute: typeof MeusAnunciosRoute
+  RecuperarSenhaRoute: typeof RecuperarSenhaRoute
+  AnunciosNovoRoute: typeof AnunciosNovoRoute
   TerrenosIdRoute: typeof TerrenosIdRoute
   TerrenosIndexRoute: typeof TerrenosIndexRoute
+  AnunciosIdEditarRoute: typeof AnunciosIdEditarRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,11 +182,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/como-funciona': {
       id: '/como-funciona'
       path: '/como-funciona'
       fullPath: '/como-funciona'
       preLoaderRoute: typeof ComoFuncionaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meus-anuncios': {
+      id: '/meus-anuncios'
+      path: '/meus-anuncios'
+      fullPath: '/meus-anuncios'
+      preLoaderRoute: typeof MeusAnunciosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar-senha': {
+      id: '/recuperar-senha'
+      path: '/recuperar-senha'
+      fullPath: '/recuperar-senha'
+      preLoaderRoute: typeof RecuperarSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anuncios/novo': {
+      id: '/anuncios/novo'
+      path: '/anuncios/novo'
+      fullPath: '/anuncios/novo'
+      preLoaderRoute: typeof AnunciosNovoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terrenos/': {
@@ -99,14 +245,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TerrenosIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/anuncios/$id/editar': {
+      id: '/anuncios/$id/editar'
+      path: '/anuncios/$id/editar'
+      fullPath: '/anuncios/$id/editar'
+      preLoaderRoute: typeof AnunciosIdEditarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  CadastroRoute: CadastroRoute,
   ComoFuncionaRoute: ComoFuncionaRoute,
+  LoginRoute: LoginRoute,
+  MeusAnunciosRoute: MeusAnunciosRoute,
+  RecuperarSenhaRoute: RecuperarSenhaRoute,
+  AnunciosNovoRoute: AnunciosNovoRoute,
   TerrenosIdRoute: TerrenosIdRoute,
   TerrenosIndexRoute: TerrenosIndexRoute,
+  AnunciosIdEditarRoute: AnunciosIdEditarRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
