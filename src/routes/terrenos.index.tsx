@@ -12,8 +12,8 @@ import { DEFAULT_FILTERS, filterProperties, type PropertyFilterState } from "@/u
 const PAGE = 6;
 
 export const Route = createFileRoute("/terrenos/")({
-  validateSearch: (s: Record<string, unknown>): { q?: string } => ({
-    q: typeof s.q === "string" && s.q ? s.q : undefined,
+  validateSearch: (s: Record<string, unknown>): { q?: string | undefined } => ({
+    q: typeof s["q"] === "string" && s["q"] ? s["q"] : undefined,
   }),
   head: () => ({
     meta: [
