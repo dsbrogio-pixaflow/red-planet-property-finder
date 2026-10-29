@@ -11,6 +11,8 @@ export const Route = createFileRoute("/cadastro")({
   head: () => ({
     meta: [
       { title: "Criar conta — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Cadastro demonstrativo na Mars Real Estate." },
       { property: "og:title", content: "Criar conta — Mars Real Estate" },
       { property: "og:description", content: "Crie sua conta demonstrativa." },

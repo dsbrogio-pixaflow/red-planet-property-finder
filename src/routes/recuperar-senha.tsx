@@ -11,6 +11,8 @@ export const Route = createFileRoute("/recuperar-senha")({
   head: () => ({
     meta: [
       { title: "Recuperar senha — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Recuperação de senha demonstrativa." },
       { property: "og:title", content: "Recuperar senha — Mars Real Estate" },
       { property: "og:description", content: "Recuperação de senha demonstrativa." },

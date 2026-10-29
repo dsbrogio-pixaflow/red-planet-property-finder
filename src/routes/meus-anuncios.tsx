@@ -11,6 +11,8 @@ export const Route = createFileRoute("/meus-anuncios")({
   head: () => ({
     meta: [
       { title: "Meus anúncios — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Gerencie seus anúncios demonstrativos." },
       { property: "og:title", content: "Meus anúncios — Mars Real Estate" },
       { property: "og:description", content: "Área do usuário demonstrativa." },

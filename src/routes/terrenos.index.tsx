@@ -18,6 +18,8 @@ export const Route = createFileRoute("/terrenos/")({
   head: () => ({
     meta: [
       { title: "Explorar terrenos em Marte — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Catálogo de terrenos fictícios em Marte com filtros por preço, área, região e características." },
       { property: "og:title", content: "Explorar terrenos em Marte" },
       { property: "og:description", content: "Filtre e compare anúncios demonstrativos de terrenos marcianos." },

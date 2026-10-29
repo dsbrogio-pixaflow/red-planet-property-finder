@@ -9,6 +9,8 @@ export const Route = createFileRoute("/anuncios/novo")({
   head: () => ({
     meta: [
       { title: "Novo anúncio — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Crie um anúncio demonstrativo de terreno em Marte." },
       { property: "og:title", content: "Novo anúncio — Mars Real Estate" },
       { property: "og:description", content: "Formulário demonstrativo de anúncio." },

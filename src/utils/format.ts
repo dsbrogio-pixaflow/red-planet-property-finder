@@ -10,7 +10,8 @@ export const formatDate = (iso: string) =>
 /** Full reais, not the cents-based typing mask used by the listing form. */
 export function parsePriceFilter(raw: string): number | null {
   const text = raw.trim().replace(/^R\$\s*/, "").trim();
-  if (!text) return null;
+  if (!raw.trim()) return null;
+  if (!text) return NaN;
   let normalized: string;
   if (/^\d{1,3}(\.\d{3})+(,\d{1,2})?$/.test(text)) {
     normalized = text.replace(/\./g, "").replace(",", ".");
