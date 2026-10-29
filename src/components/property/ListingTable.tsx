@@ -17,7 +17,7 @@ export function ListingTable({ items, adminActions }: { items: Property[]; admin
           <li key={p.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
             <img src={p.images[0]} alt="" className="h-16 w-24 rounded-md object-cover" />
             <div className="flex-1">
-              <p className="font-medium">{p.title}</p>
+              <p className="font-medium"><Link to="/terrenos/$id" params={{ id: p.id }} className="hover:text-primary-glow hover:underline">{p.title}</Link></p>
               <div className="mt-1 flex items-center gap-3 text-sm"><PriceDisplay value={p.price} /><StatusBadge status={p.status} /></div>
             </div>
             <div className="flex flex-wrap gap-1">
