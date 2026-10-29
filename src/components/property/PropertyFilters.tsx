@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FEATURE_OPTIONS, REGIONS } from "@/data/properties";
-import { DEFAULT_FILTERS, type PropertyFilterState } from "@/utils/filterProperties";
+import { DEFAULT_FILTERS, getPriceFilterError, type PropertyFilterState } from "@/utils/filterProperties";
 import type { MarsRegion } from "@/types/property";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,7 @@ export function PropertyFilters({
   value: PropertyFilterState;
   onChange: (v: PropertyFilterState) => void;
 }) {
+  const priceError = getPriceFilterError(value);
   const set = <K extends keyof PropertyFilterState>(k: K, v: PropertyFilterState[K]) =>
     onChange({ ...value, [k]: v });
   const toggleFeature = (f: string) =>
@@ -37,13 +38,15 @@ export function PropertyFilters({
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="f-min">Preço mín. (R$)</Label>
-          <Input id="f-min" type="number" min={0} inputMode="numeric" value={value.minPrice} onChange={(e) => set("minPrice", e.target.value)} />
+          <Input id="f-min" type="text" inputMode="decimal" aria-invalid={Boolean(priceError)} aria-describedby={priceError ? "price-error" : undefined} value={value.minPrice} onChange={(e) => set("minPrice", e.target.value)} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="f-max">Preço máx. (R$)</Label>
-          <Input id="f-max" type="number" min={0} inputMode="numeric" value={value.maxPrice} onChange={(e) => set("maxPrice", e.target.value)} />
+          <Input id="f-max" type="text" inputMode="decimal" aria-invalid={Boolean(priceError)} aria-describedby={priceError ? "price-error" : undefined} value={value.maxPrice} onChange={(e) => set("maxPrice", e.target.value)} />
         </div>
       </div>
+
+      {priceError && <p id="price-error" role="alert" className="text-sm text-destructive">{priceError}</p>}
 
       <div className="space-y-1.5">
         <Label htmlFor="f-area">Área mínima (m²)</Label>
@@ -66,9 +69,11 @@ export function PropertyFilters({
           {FEATURE_OPTIONS.map((f) => {
             const on = value.features.includes(f);
             return (
-              <button
+              <Button
                 key={f}
                 type="button"
+                variant="outline"
+                size="sm"
                 aria-pressed={on}
                 onClick={() => toggleFeature(f)}
                 className={cn(
@@ -77,7 +82,7 @@ export function PropertyFilters({
                 )}
               >
                 {f}
-              </button>
+              </Button>
             );
           })}
         </div>

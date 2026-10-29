@@ -1,4 +1,5 @@
 import type { MarsRegion, Property } from "@/types/property";
+import { parsePriceFilter } from "./format";
 
 export type SortOption = "menor-preco" | "maior-preco" | "recentes";
 
@@ -28,10 +29,23 @@ const norm = (s: string) =>
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 
+export function getPriceFilterError(f: Pick<PropertyFilterState, "minPrice" | "maxPrice">): string | undefined {
+  const min = parsePriceFilter(f.minPrice);
+  const max = parsePriceFilter(f.maxPrice);
+  if ((min !== null && Number.isNaN(min)) || (max !== null && Number.isNaN(max))) {
+    return "Informe preços válidos e não negativos, como R$ 150.000,00.";
+  }
+  if (min !== null && max !== null && min > max) {
+    return "O preço mínimo não pode ser maior que o preço máximo. O último intervalo válido foi mantido.";
+  }
+  return undefined;
+}
+
 export function filterProperties(list: Property[], f: PropertyFilterState): Property[] {
   const q = norm(f.query.trim());
-  const min = f.minPrice ? Number(f.minPrice) : null;
-  const max = f.maxPrice ? Number(f.maxPrice) : null;
+  const priceError = getPriceFilterError(f);
+  const min = priceError ? null : parsePriceFilter(f.minPrice);
+  const max = priceError ? null : parsePriceFilter(f.maxPrice);
   const minArea = f.minArea ? Number(f.minArea) : null;
 
   const out = list.filter((p) => {
