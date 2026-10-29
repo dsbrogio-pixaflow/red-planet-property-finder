@@ -17,6 +17,8 @@ export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
       { title: "Painel administrativo — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Painel administrativo demonstrativo." },
       { property: "og:title", content: "Painel administrativo — Mars Real Estate" },
       { property: "og:description", content: "Gerenciamento demonstrativo de anúncios." },

@@ -23,7 +23,11 @@ export function PropertyCard({ property }: { property: Property }) {
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div>
-          <h3 className="text-lg font-semibold">{property.title}</h3>
+          <h3 className="text-lg font-semibold">
+            <Link to="/terrenos/$id" params={{ id: property.id }} className="transition-colors hover:text-primary-glow hover:underline">
+              {property.title}
+            </Link>
+          </h3>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="size-3.5" aria-hidden /> {property.location}
           </p>

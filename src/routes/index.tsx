@@ -13,6 +13,8 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Mars Real Estate — Terrenos fictícios em Marte" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Compre já seu terreno em Marte com os melhores preços. Plataforma demonstrativa de anúncios fictícios." },
       { property: "og:title", content: "Mars Real Estate — Terrenos fictícios em Marte" },
       { property: "og:description", content: "Seu próximo destino está entre as estrelas." },

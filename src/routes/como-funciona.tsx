@@ -7,6 +7,8 @@ export const Route = createFileRoute("/como-funciona")({
   head: () => ({
     meta: [
       { title: "Como funciona — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Entenda como explorar e comparar terrenos fictícios em Marte." },
       { property: "og:title", content: "Como funciona — Mars Real Estate" },
       { property: "og:description", content: "Explore, compare e consulte anúncios demonstrativos de terrenos marcianos." },

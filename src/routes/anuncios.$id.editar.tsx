@@ -11,6 +11,8 @@ export const Route = createFileRoute("/anuncios/$id/editar")({
   head: () => ({
     meta: [
       { title: "Editar anúncio — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Edição demonstrativa de anúncio." },
       { property: "og:title", content: "Editar anúncio — Mars Real Estate" },
       { property: "og:description", content: "Edição demonstrativa de anúncio." },

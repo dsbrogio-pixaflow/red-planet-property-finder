@@ -11,6 +11,8 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Entrar — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Acesse sua conta demonstrativa na Mars Real Estate." },
       { property: "og:title", content: "Entrar — Mars Real Estate" },
       { property: "og:description", content: "Login demonstrativo da plataforma." },

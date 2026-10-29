@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/common/States";
 import { PropertyCard } from "@/components/property/PropertyCard";
 import { PropertyFilters, SortSelect } from "@/components/property/PropertyFilters";
 import { useProperties } from "@/hooks/useProperties";
-import { DEFAULT_FILTERS, filterProperties, type PropertyFilterState } from "@/utils/filterProperties";
+import { DEFAULT_FILTERS, filterProperties, getPriceFilterError, type PropertyFilterState } from "@/utils/filterProperties";
 
 const PAGE = 6;
 
@@ -18,6 +18,8 @@ export const Route = createFileRoute("/terrenos/")({
   head: () => ({
     meta: [
       { title: "Explorar terrenos em Marte — Mars Real Estate" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Catálogo de terrenos fictícios em Marte com filtros por preço, área, região e características." },
       { property: "og:title", content: "Explorar terrenos em Marte" },
       { property: "og:description", content: "Filtre e compare anúncios demonstrativos de terrenos marcianos." },
@@ -31,9 +33,14 @@ function Catalog() {
   const all = useProperties();
   const [filters, setFilters] = useState<PropertyFilterState>({ ...DEFAULT_FILTERS, query: q ?? "" });
   const [visible, setVisible] = useState(PAGE);
+  const [validPrices, setValidPrices] = useState({ minPrice: "", maxPrice: "" });
   const published = useMemo(() => all.filter((p) => p.status === "publicado"), [all]);
-  const results = useMemo(() => filterProperties(published, filters), [published, filters]);
-  const update = (f: PropertyFilterState) => { setFilters(f); setVisible(PAGE); };
+  const results = useMemo(() => filterProperties(published, { ...filters, ...validPrices }), [published, filters, validPrices]);
+  const update = (f: PropertyFilterState) => {
+    setFilters(f);
+    if (!getPriceFilterError(f)) setValidPrices({ minPrice: f.minPrice, maxPrice: f.maxPrice });
+    setVisible(PAGE);
+  };
 
   return (
     <PageShell>
