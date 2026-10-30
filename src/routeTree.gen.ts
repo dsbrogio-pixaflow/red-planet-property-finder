@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as ComoFuncionaRouteImport } from './routes/como-funciona'
+import { Route as DescobrirRouteImport } from './routes/descobrir'
+import { Route as FinanciamentoRouteImport } from './routes/financiamento'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MeusAnunciosRouteImport } from './routes/meus-anuncios'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
@@ -31,6 +34,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AjudaRoute = AjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CadastroRoute = CadastroRouteImport.update({
   id: '/cadastro',
   path: '/cadastro',
@@ -39,6 +47,16 @@ const CadastroRoute = CadastroRouteImport.update({
 const ComoFuncionaRoute = ComoFuncionaRouteImport.update({
   id: '/como-funciona',
   path: '/como-funciona',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DescobrirRoute = DescobrirRouteImport.update({
+  id: '/descobrir',
+  path: '/descobrir',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanciamentoRoute = FinanciamentoRouteImport.update({
+  id: '/financiamento',
+  path: '/financiamento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -80,8 +98,11 @@ const AnunciosIdEditarRoute = AnunciosIdEditarRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/ajuda': typeof AjudaRoute
   '/cadastro': typeof CadastroRoute
   '/como-funciona': typeof ComoFuncionaRoute
+  '/descobrir': typeof DescobrirRoute
+  '/financiamento': typeof FinanciamentoRoute
   '/login': typeof LoginRoute
   '/meus-anuncios': typeof MeusAnunciosRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
@@ -93,8 +114,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/ajuda': typeof AjudaRoute
   '/cadastro': typeof CadastroRoute
   '/como-funciona': typeof ComoFuncionaRoute
+  '/descobrir': typeof DescobrirRoute
+  '/financiamento': typeof FinanciamentoRoute
   '/login': typeof LoginRoute
   '/meus-anuncios': typeof MeusAnunciosRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
@@ -107,8 +131,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/ajuda': typeof AjudaRoute
   '/cadastro': typeof CadastroRoute
   '/como-funciona': typeof ComoFuncionaRoute
+  '/descobrir': typeof DescobrirRoute
+  '/financiamento': typeof FinanciamentoRoute
   '/login': typeof LoginRoute
   '/meus-anuncios': typeof MeusAnunciosRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
@@ -122,8 +149,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/ajuda'
     | '/cadastro'
     | '/como-funciona'
+    | '/descobrir'
+    | '/financiamento'
     | '/login'
     | '/meus-anuncios'
     | '/recuperar-senha'
@@ -135,8 +165,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/ajuda'
     | '/cadastro'
     | '/como-funciona'
+    | '/descobrir'
+    | '/financiamento'
     | '/login'
     | '/meus-anuncios'
     | '/recuperar-senha'
@@ -148,8 +181,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/ajuda'
     | '/cadastro'
     | '/como-funciona'
+    | '/descobrir'
+    | '/financiamento'
     | '/login'
     | '/meus-anuncios'
     | '/recuperar-senha'
@@ -162,8 +198,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AjudaRoute: typeof AjudaRoute
   CadastroRoute: typeof CadastroRoute
   ComoFuncionaRoute: typeof ComoFuncionaRoute
+  DescobrirRoute: typeof DescobrirRoute
+  FinanciamentoRoute: typeof FinanciamentoRoute
   LoginRoute: typeof LoginRoute
   MeusAnunciosRoute: typeof MeusAnunciosRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
@@ -189,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ajuda': {
+      id: '/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AjudaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cadastro': {
       id: '/cadastro'
       path: '/cadastro'
@@ -201,6 +247,20 @@ declare module '@tanstack/react-router' {
       path: '/como-funciona'
       fullPath: '/como-funciona'
       preLoaderRoute: typeof ComoFuncionaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/descobrir': {
+      id: '/descobrir'
+      path: '/descobrir'
+      fullPath: '/descobrir'
+      preLoaderRoute: typeof DescobrirRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/financiamento': {
+      id: '/financiamento'
+      path: '/financiamento'
+      fullPath: '/financiamento'
+      preLoaderRoute: typeof FinanciamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -258,8 +318,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AjudaRoute: AjudaRoute,
   CadastroRoute: CadastroRoute,
   ComoFuncionaRoute: ComoFuncionaRoute,
+  DescobrirRoute: DescobrirRoute,
+  FinanciamentoRoute: FinanciamentoRoute,
   LoginRoute: LoginRoute,
   MeusAnunciosRoute: MeusAnunciosRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
