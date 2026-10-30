@@ -8,12 +8,15 @@ import { PropertyCard } from "@/components/property/PropertyCard";
 import { PropertyFilters, SortSelect } from "@/components/property/PropertyFilters";
 import { useProperties } from "@/hooks/useProperties";
 import { DEFAULT_FILTERS, filterProperties, getPriceFilterError, type PropertyFilterState } from "@/utils/filterProperties";
+import type { MarsRegion } from "@/types/property";
 
 const PAGE = 6;
+const MARS_REGIONS: MarsRegion[] = ["Tharsis", "Valles Marineris", "Elysium", "Arabia Terra", "Utopia Planitia", "Hellas"];
 
 export const Route = createFileRoute("/terrenos/")({
-  validateSearch: (s: Record<string, unknown>): { q?: string | undefined } => ({
+  validateSearch: (s: Record<string, unknown>): { q?: string | undefined; region?: PropertyFilterState["region"] } => ({
     q: typeof s["q"] === "string" && s["q"] ? s["q"] : undefined,
+    region: typeof s["region"] === "string" && MARS_REGIONS.includes(s["region"] as MarsRegion) ? (s["region"] as MarsRegion) : undefined,
   }),
   head: () => ({
     meta: [
@@ -29,9 +32,9 @@ export const Route = createFileRoute("/terrenos/")({
 });
 
 function Catalog() {
-  const { q } = Route.useSearch();
+  const { q, region } = Route.useSearch();
   const all = useProperties();
-  const [filters, setFilters] = useState<PropertyFilterState>({ ...DEFAULT_FILTERS, query: q ?? "" });
+  const [filters, setFilters] = useState<PropertyFilterState>({ ...DEFAULT_FILTERS, query: q ?? "", region: region ?? "todas" });
   const [visible, setVisible] = useState(PAGE);
   const [validPrices, setValidPrices] = useState({ minPrice: "", maxPrice: "" });
   const published = useMemo(() => all.filter((p) => p.status === "publicado"), [all]);
