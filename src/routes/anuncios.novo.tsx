@@ -6,6 +6,9 @@ import { propertyService } from "@/services/propertyService";
 import { DEMO_USER_ADVERTISER } from "@/services/authService";
 
 export const Route = createFileRoute("/anuncios/novo")({
+  validateSearch: (s: Record<string, unknown>): { tipo?: "proprietario" | "imobiliaria" } => ({
+    tipo: s["tipo"] === "imobiliaria" ? "imobiliaria" : s["tipo"] === "proprietario" ? "proprietario" : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Novo anúncio — Mars Real Estate" },
