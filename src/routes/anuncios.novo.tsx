@@ -6,9 +6,10 @@ import { propertyService } from "@/services/propertyService";
 import { DEMO_USER_ADVERTISER } from "@/services/authService";
 
 export const Route = createFileRoute("/anuncios/novo")({
-  validateSearch: (s: Record<string, unknown>): { tipo?: "proprietario" | "imobiliaria" } => ({
-    tipo: s["tipo"] === "imobiliaria" ? "imobiliaria" : s["tipo"] === "proprietario" ? "proprietario" : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { tipo?: "proprietario" | "imobiliaria" } => {
+    const tipo = s["tipo"] === "imobiliaria" ? "imobiliaria" : s["tipo"] === "proprietario" ? "proprietario" : undefined;
+    return tipo ? { tipo } : {};
+  },
   head: () => ({
     meta: [
       { title: "Novo anúncio — Mars Real Estate" },
@@ -32,7 +33,7 @@ function NewListing() {
         <PageHeading
           eyebrow="Anunciar"
           title={perfil ? `Novo anúncio — ${perfil}` : "Novo anúncio"}
-          description={perfil ? `Fluxo de cadastro para ${perfil}.` : undefined}
+          {...(perfil ? { description: `Fluxo de cadastro para ${perfil}.` } : {})}
         />
         <DemoBadge>Modo demonstrativo: o anúncio fica apenas nesta sessão do navegador e some ao recarregar a página.</DemoBadge>
         <PropertyForm
