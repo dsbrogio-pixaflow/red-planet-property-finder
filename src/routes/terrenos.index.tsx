@@ -14,9 +14,11 @@ const PAGE = 6;
 const MARS_REGIONS: MarsRegion[] = ["Tharsis", "Valles Marineris", "Elysium", "Arabia Terra", "Utopia Planitia", "Hellas"];
 
 export const Route = createFileRoute("/terrenos/")({
-  validateSearch: (s: Record<string, unknown>): { q?: string | undefined; region?: PropertyFilterState["region"] } => ({
-    q: typeof s["q"] === "string" && s["q"] ? s["q"] : undefined,
-    region: typeof s["region"] === "string" && MARS_REGIONS.includes(s["region"] as MarsRegion) ? (s["region"] as MarsRegion) : undefined,
+  validateSearch: (s: Record<string, unknown>): { q?: string; region?: MarsRegion } => ({
+    ...(typeof s["q"] === "string" && s["q"] ? { q: s["q"] } : {}),
+    ...(typeof s["region"] === "string" && MARS_REGIONS.includes(s["region"] as MarsRegion)
+      ? { region: s["region"] as MarsRegion }
+      : {}),
   }),
   head: () => ({
     meta: [
