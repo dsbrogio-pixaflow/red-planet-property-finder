@@ -13,3 +13,5 @@
 - Keep raw filter input separate from the last valid price interval, so invalid edits do not apply while other filters remain live.
 - Use TanStack links on the title and details action independently, so card controls never trigger whole-card navigation.
 - Reuse the existing non-authenticating login/signup screens; the demo user is not a real session and must not drive signed-in header actions.
+- Keep geographic discovery data separate from listing taxonomy; only explicit catalog-region associations count published inventory, so nearby landmarks never imply listings inside them.
+- Load the discovery globe lazily behind ClientOnly, with a demand-rendered R3F scene and shared east-positive coordinate conversion; this keeps WebGL outside SSR and avoids idle rendering.
