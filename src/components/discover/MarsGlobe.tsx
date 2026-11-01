@@ -14,9 +14,9 @@ type Palette = { surface: string; marker: string; selected: string; light: strin
 type Props = { selectedId: string; onSelect: (id: string) => void };
 
 class GraphicsBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
+  override state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
-  render() { return this.state.failed ? <GlobeStatus failed /> : this.props.children; }
+  override render() { return this.state.failed ? <GlobeStatus failed /> : this.props.children; }
 }
 
 function Scene({ selectedId, onSelect, palette, texture, action, onReady, onView }: Props & {
@@ -90,7 +90,7 @@ function Scene({ selectedId, onSelect, palette, texture, action, onReady, onView
       const selected = selectedId === region.id;
       return <group key={region.id} position={marsPosition(region.latitude, region.longitude, 1.64)}>
         <mesh><sphereGeometry args={[selected ? 0.026 : 0.016, 12, 8]} /><meshBasicMaterial color={selected ? palette.selected : palette.marker} /></mesh>
-        <Html center occlude={planet.current ? [planet] : true} zIndexRange={[20, 0]}>
+        <Html center occlude zIndexRange={[20, 0]}>
           <Button variant="ghost" size="icon" onClick={() => onSelect(region.id)} aria-label={`Selecionar ${region.name} no mapa`} title={region.name} aria-pressed={selected}
             className="group relative size-9 rounded-full bg-transparent hover:bg-accent/60">
             <span className={`size-2 rounded-full border ${selected ? "border-warning bg-warning ring-4 ring-warning/20" : "border-foreground bg-background"}`} />
@@ -129,7 +129,7 @@ export default function MarsGlobe(props: Props) {
   return <GraphicsBoundary>
     <div ref={wrapper} className="relative h-[480px] w-full touch-none overflow-hidden bg-background sm:h-[580px]" data-scene-ready={ready && textureState !== "loading" ? "true" : undefined} data-selected-region={props.selectedId} data-texture-state={textureState}>
       {palette && <Canvas frameloop="demand" dpr={[1, 1.5]} camera={{ position: [0, 0, 5.8], fov: 40 }} gl={{ antialias: true, alpha: true }} fallback={<GlobeStatus failed />}>
-        <Scene {...props} palette={palette} texture={texture} action={action} onReady={() => setReady(true)} onView={(d, moving) => { if (wrapper.current) { wrapper.current.dataset.cameraDistance = d.toFixed(3); wrapper.current.dataset.moving = String(moving); } }} />
+        <Scene {...props} palette={palette} texture={texture} action={action} onReady={() => setReady(true)} onView={(d, moving) => { if (wrapper.current) { wrapper.current.dataset["cameraDistance"] = d.toFixed(3); wrapper.current.dataset["moving"] = String(moving); } }} />
       </Canvas>}
       {!ready && <div className="absolute inset-0"><GlobeStatus /></div>}
       <div className="absolute bottom-5 right-4 flex gap-2" aria-label="Controles do globo">
