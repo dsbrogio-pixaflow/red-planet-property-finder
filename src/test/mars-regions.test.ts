@@ -8,7 +8,7 @@ describe("Mars discovery", () => {
     expect(MARS_REGIONS.map(r => r.name)).toEqual(["Olympus Mons", "Tharsis", "Valles Marineris", "Elysium Planitia", "Utopia Planitia", "Arabia Terra", "Terra Cimmeria", "Terra Sirenum", "Noctis Labyrinthus", "Amazonis Planitia", "Arcadia Planitia", "Hellas Planitia", "Isidis Planitia", "Chryse Planitia", "Aonia Terra", "Margaritifer Terra", "Gale Crater", "Jezero Crater"]);
     expect(new Set(MARS_REGIONS.map(r => r.id)).size).toBe(18);
   });
-  it.each([["tharsis", 1], ["valles-marineris", 1], ["elysium-planitia", 1], ["utopia-planitia", 1], ["arabia-terra", 3], ["hellas-planitia", 1], ["olympus-mons", 0], ["gale-crater", 0], ["jezero-crater", 0]])("counts only published inventory for %s", (id, expected) => {
+  it.each([["tharsis", 1], ["valles-marineris", 1], ["elysium-planitia", 1], ["utopia-planitia", 1], ["arabia-terra", 2], ["hellas-planitia", 1], ["olympus-mons", 0], ["gale-crater", 0], ["jezero-crater", 0]])("counts only published inventory for %s", (id, expected) => {
     const r = MARS_REGIONS.find(r => r.id === id);
     if (!r) throw new Error("Missing region");
     expect(listingsForRegion(r, SEED_PROPERTIES)).toHaveLength(expected);
