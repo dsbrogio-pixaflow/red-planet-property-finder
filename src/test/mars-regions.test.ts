@@ -27,4 +27,11 @@ describe("Mars discovery", () => {
     expect(marsPosition(0, 180)[0]).toBeCloseTo(-1);
     for (const r of MARS_REGIONS) expect(Math.hypot(...marsPosition(r.latitude, r.longitude))).toBeCloseTo(1);
   });
+  it("excludes draft listings from a region's count", () => {
+    const r = MARS_REGIONS.find(r => r.id === "arabia-terra");
+    if (!r) throw new Error("Missing region");
+    const drafts = SEED_PROPERTIES.filter(p => p.region === r.catalogRegion && p.status !== "publicado");
+    expect(drafts.map(p => p.id)).toContain("ares-valley");
+    expect(listingsForRegion(r, SEED_PROPERTIES).map(p => p.id)).not.toContain("ares-valley");
+  });
 });
