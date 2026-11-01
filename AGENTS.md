@@ -15,3 +15,4 @@
 - Reuse the existing non-authenticating login/signup screens; the demo user is not a real session and must not drive signed-in header actions.
 - Keep geographic discovery data separate from listing taxonomy; only explicit catalog-region associations count published inventory, so nearby landmarks never imply listings inside them.
 - Load the discovery globe lazily behind ClientOnly, with a demand-rendered R3F scene and shared east-positive coordinate conversion; this keeps WebGL outside SSR and avoids idle rendering.
+- Decide globe marker visibility from the camera direction (dot product against each region's center) instead of drei's `occlude`: with an in-scene Environment that raycast hides every marker, so markers would never be selectable.
