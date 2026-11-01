@@ -1,4 +1,4 @@
-import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Component, useEffect, useRef, useState, type ReactNode } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Html, Lightformer, OrbitControls } from "@react-three/drei";
 import { Mesh, Quaternion, SRGBColorSpace, TextureLoader, Vector3, type Texture } from "three";
