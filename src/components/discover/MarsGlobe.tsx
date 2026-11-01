@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef, useState, type ReactNode } from "react";
+import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Html, Lightformer, OrbitControls } from "@react-three/drei";
 import { Mesh, Quaternion, SRGBColorSpace, TextureLoader, Vector3, type Texture } from "three";
@@ -29,6 +29,8 @@ function Scene({ selectedId, onSelect, palette, texture, action, onReady, onView
   const motion = useRef<{ from: Quaternion; to: Quaternion; elapsed: number; distance: number } | null>(null);
   const ready = useRef(false);
   const distance = Math.max(5.5, 4 / Math.max(size.width / size.height, 0.65));
+  const [facing, setFacing] = useState<Set<string>>(() => new Set([selectedId]));
+  const prevDir = useRef(new Vector3(0, 0, 1));
 
   useEffect(() => {
     const region = MARS_REGIONS.find(r => r.id === selectedId);
@@ -72,6 +74,11 @@ function Scene({ selectedId, onSelect, palette, texture, action, onReady, onView
       if (t < 1) invalidate(); else motion.current = null;
     }
     onView(camera.position.length(), Boolean(motion.current));
+    const dir = camera.position.clone().normalize();
+    if (dir.distanceToSquared(prevDir.current) > 2e-4) {
+      prevDir.current.copy(dir);
+      setFacing(new Set(MARS_REGIONS.filter(r => new Vector3(...marsPosition(r.latitude, r.longitude)).dot(dir) > 0.2).map(r => r.id)));
+    }
     if (!ready.current) { ready.current = true; onReady(); }
   });
 
@@ -88,9 +95,10 @@ function Scene({ selectedId, onSelect, palette, texture, action, onReady, onView
     </mesh>
     {MARS_REGIONS.map(region => {
       const selected = selectedId === region.id;
+      if (!selected && !facing.has(region.id)) return null;
       return <group key={region.id} position={marsPosition(region.latitude, region.longitude, 1.64)}>
         <mesh><sphereGeometry args={[selected ? 0.026 : 0.016, 12, 8]} /><meshBasicMaterial color={selected ? palette.selected : palette.marker} /></mesh>
-        <Html center occlude zIndexRange={[20, 0]}>
+        <Html center zIndexRange={[20, 0]}>
           <Button variant="ghost" size="icon" onClick={() => onSelect(region.id)} aria-label={`Selecionar ${region.name} no mapa`} title={region.name} aria-pressed={selected}
             className="group relative size-9 rounded-full bg-transparent hover:bg-accent/60">
             <span className={`size-2 rounded-full border ${selected ? "border-warning bg-warning ring-4 ring-warning/20" : "border-foreground bg-background"}`} />
