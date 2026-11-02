@@ -95,10 +95,12 @@ function Scene({ selectedId, onSelect, palette, texture, action, onReady, onView
     </mesh>
     {MARS_REGIONS.map(region => {
       const selected = selectedId === region.id;
-      if (!selected && !facing.has(region.id)) return null;
-      return <group key={region.id} position={marsPosition(region.latitude, region.longitude, 1.64)}>
+      // Keep every label mounted and hide back-side ones: drei's Html owns a separate
+      // React root per label, and unmounting it mid-render logs "synchronously unmount a root".
+      const visible = selected || facing.has(region.id);
+      return <group key={region.id} position={marsPosition(region.latitude, region.longitude, 1.64)} visible={visible}>
         <mesh><sphereGeometry args={[selected ? 0.026 : 0.016, 12, 8]} /><meshBasicMaterial color={selected ? palette.selected : palette.marker} /></mesh>
-        <Html center zIndexRange={[20, 0]}>
+        <Html center zIndexRange={[20, 0]} style={visible ? undefined : { display: "none" }}>
           <Button variant="ghost" size="icon" onClick={() => onSelect(region.id)} aria-label={`Selecionar ${region.name} no mapa`} title={region.name} aria-pressed={selected}
             className="group relative size-9 rounded-full bg-transparent hover:bg-accent/60">
             <span className={`size-2 rounded-full border ${selected ? "border-warning bg-warning ring-4 ring-warning/20" : "border-foreground bg-background"}`} />
