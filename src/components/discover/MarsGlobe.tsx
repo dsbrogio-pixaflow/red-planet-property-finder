@@ -127,7 +127,7 @@ export default function MarsGlobe(props: Props) {
     setPalette(Object.fromEntries(["surface", "marker", "selected", "light", "fill"].map(key => [key, css.getPropertyValue(`--globe-${key}`).trim()])) as Palette);
     let active = true;
     let loaded: Texture | undefined;
-    new TextureLoader().load(textureAsset.url, value => {
+    new TextureLoader().load(textureAsset.url, (value: Texture) => {
       loaded = value;
       if (!active) { value.dispose(); return; }
       value.colorSpace = SRGBColorSpace;
