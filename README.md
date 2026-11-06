@@ -1,26 +1,24 @@
-# Red Planet Property Finder
+# Backend Spring Boot + Neon
 
-Implement exactly the screenshot and nothing else
+Requisitos: Java 21 e as credenciais do Neon no `.env.local` da raiz do
+repositório. O Spring carrega esse arquivo tanto ao iniciar na raiz quanto
+na pasta `backend`.
 
-This project was built with [Lovable](https://lovable.dev).
+Use os valores reais exportados pelo Neon. Não faça commit do `.env.local`.
+`MARS_JWT_SECRET` também pode ser fornecido pelo ambiente do sistema/IDE.
 
-**Live app**: https://red-planet-property-finder.lovable.app
+## Executar
 
-## Build with Lovable
+No PowerShell, dentro da pasta "backend`:
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/fbda85bb-a54c-4fed-9431-650fa15c9bb0).
+.\mvnw.cmd spring-boot:run
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+O backend atende em http://localhost:8081. 
 
-## Development
+## Frontend
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
+sh
 git clone <this-repository-url>
 cd <repository-name>
 npm i
 npm run dev
-```
