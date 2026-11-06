@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { PageShell, PageHeading } from "@/components/layout/PageShell";
@@ -18,6 +18,7 @@ import {
 import { usePublishedProperties } from "@/hooks/useApiProperties";
 
 import type { ApiProperty } from "@/types/api";
+import { MARS_REGIONS, apiListingsForRegion } from "@/data/marsRegions";
 
 const PAGE = 6;
 
@@ -119,10 +120,12 @@ function filterProperties(
 }
 
 export const Route = createFileRoute("/terrenos/")({
-  validateSearch: (search: Record<string, unknown>): { q?: string } => ({
-    ...(typeof search.q === "string" && search.q
-      ? { q: search.q }
+  validateSearch: (search: Record<string, unknown>): { q?: string; region?: string } => ({
+    ...(typeof search["q"] === "string" && search["q"]
+      ? { q: search["q"] }
       : {}),
+    ...(typeof search["region"] === "string" && MARS_REGIONS.some(region => region.id === search["region"])
+      ? { region: search["region"] } : {}),
   }),
 
   head: () => ({
@@ -139,7 +142,8 @@ export const Route = createFileRoute("/terrenos/")({
 
 function Catalog() {
 
-  const { q } = Route.useSearch();
+  const { q, region: regionId } = Route.useSearch();
+  const selectedRegion = MARS_REGIONS.find(region => region.id === regionId);
 
   const {
     data: properties = [],
@@ -204,9 +208,9 @@ function Catalog() {
       return [];
     }
 
-    return filterProperties(properties, filters);
+    return filterProperties(selectedRegion ? apiListingsForRegion(selectedRegion, properties) : properties, filters);
 
-  }, [properties, filters, priceError]);
+  }, [properties, filters, priceError, selectedRegion]);
 
   const updateFilters = (newFilters: ApiPropertyFilterState) => {
 
@@ -225,6 +229,10 @@ function Catalog() {
           title="Explorar imóveis"
           description="Descubra habitats e residências nas colônias marcianas."
         />
+        {selectedRegion && <p className="text-sm text-muted-foreground">
+          Região: <strong className="text-foreground">{selectedRegion.name}</strong>{" · "}
+          <Link to="/terrenos" search={q ? { q } : {}} className="underline hover:text-foreground">Ver todas as regiões</Link>
+        </p>}
 
         <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
 

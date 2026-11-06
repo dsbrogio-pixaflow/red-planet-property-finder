@@ -7,7 +7,7 @@ import { Minus, Plus, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MARS_REGIONS } from "@/data/marsRegions";
 import { marsPosition } from "@/utils/marsCoordinates";
-import textureAsset from "@/assets/mars-viking.asset.json";
+import marsTextureUrl from "@/assets/mars-viking-mdim21.jpg";
 import { GlobeStatus } from "./GlobeStatus";
 
 type Palette = { surface: string; marker: string; selected: string; light: string; fill: string };
@@ -128,7 +128,7 @@ export default function MarsGlobe(props: Props) {
     setPalette(Object.fromEntries(["surface", "marker", "selected", "light", "fill"].map(key => [key, css.getPropertyValue(`--globe-${key}`).trim()])) as Palette);
     let active = true;
     let loaded: Texture | undefined;
-    new TextureLoader().load(textureAsset.url, (value: Texture) => {
+    new TextureLoader().load(marsTextureUrl, (value: Texture) => {
       loaded = value;
       if (!active) { value.dispose(); return; }
       value.colorSpace = SRGBColorSpace;

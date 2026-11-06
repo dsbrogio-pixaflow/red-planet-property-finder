@@ -4,8 +4,9 @@ import { PageShell } from "@/components/layout/PageShell";
 import { MarsRegionList } from "@/components/discover/MarsRegionList";
 import { MarsRegionInfo } from "@/components/discover/MarsRegionInfo";
 import { GlobeStatus } from "@/components/discover/GlobeStatus";
-import { MARS_REGIONS, listingsForRegion } from "@/data/marsRegions";
-import { useProperties } from "@/hooks/useProperties";
+import { MARS_REGIONS, apiListingsForRegion } from "@/data/marsRegions";
+import { usePublishedProperties } from "@/hooks/useApiProperties";
+import { Button } from "@/components/ui/button";
 
 const MarsGlobe = lazy(() => import("@/components/discover/MarsGlobe"));
 
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/descobrir")({
 });
 
 function Discover() {
-  const properties = useProperties();
+  const { data: properties = [], isPending, isError, refetch } = usePublishedProperties();
   const [selectedId, setSelectedId] = useState("olympus-mons");
   const region = MARS_REGIONS.find(r => r.id === selectedId) ?? MARS_REGIONS[0];
   if (!region) return null;
@@ -38,6 +39,11 @@ function Discover() {
         <h2 id="regions-heading" className="text-center text-2xl font-semibold">Explore as regiões mais interessantes de Marte</h2>
         <p className="mx-auto mb-7 mt-3 max-w-2xl text-center text-sm text-muted-foreground">Conheça as principais regiões geográficas do planeta vermelho e descubra os terrenos disponíveis em cada localidade.</p>
         <MarsRegionList selectedId={selectedId} onSelect={setSelectedId} properties={properties} />
+        {isPending && <p role="status" className="mt-4 text-center text-sm text-muted-foreground">Consultando anúncios disponíveis por região...</p>}
+        {isError && <div role="alert" className="mt-4 text-center">
+          <p className="text-sm text-destructive">Não foi possível consultar os anúncios por região.</p>
+          <Button variant="glass" className="mt-3" onClick={() => void refetch()}>Tentar novamente</Button>
+        </div>}
       </section>
     </div>
     <section aria-label="Globo interativo de Marte" className="border-y border-border/60 bg-background">
@@ -46,7 +52,7 @@ function Discover() {
       </div>
     </section>
     <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
-      <MarsRegionInfo region={region} count={listingsForRegion(region, properties).length} />
+      <MarsRegionInfo region={region} count={isPending || isError ? null : apiListingsForRegion(region, properties).length} />
       <p className="border-t border-border pt-5 text-xs leading-relaxed text-muted-foreground">
         Coordenadas: <a className="underline hover:text-foreground" href="https://planetarynames.wr.usgs.gov/GIS_Downloads" target="_blank" rel="noreferrer">USGS Gazetteer of Planetary Nomenclature</a> (latitude planetocêntrica e longitude leste). Marcadores indicam centros aproximados, não limites geográficos ou posições de lotes.
         {" "}Textura: <a className="underline hover:text-foreground" href="https://astrogeology.usgs.gov/search/map/mars_viking_colorized_global_mosaic_232m" target="_blank" rel="noreferrer">USGS Astrogeology / NASA Ames — Viking MDIM 2.1</a>, mosaico global colorizado de uso público, reduzido a 1024 px. Os anúncios e preços são demonstrativos.

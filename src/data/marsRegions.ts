@@ -1,4 +1,5 @@
 import type { MarsRegion, Property } from "@/types/property";
+import type { ApiProperty } from "@/types/api";
 
 export interface GeographicRegion {
   id: string;
@@ -38,4 +39,20 @@ export const MARS_REGIONS: GeographicRegion[] = [
 export function listingsForRegion(region: GeographicRegion, properties: Property[]) {
   if (!region.catalogRegion) return [];
   return properties.filter(p => p.status === "publicado" && p.region === region.catalogRegion);
+}
+
+function normalizeRegionName(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/** Only an explicit sector/region name associates an API listing with a region.
+ * Titles, colonies, nearby landmarks and descriptions never imply membership.
+ * Legacy catalog aliases retain their explicit associations above.
+ */
+export function apiListingsForRegion(region: GeographicRegion, properties: ApiProperty[]) {
+  const names = [region.name, region.catalogRegion].filter((name): name is string => Boolean(name))
+    .map(normalizeRegionName);
+  return properties.filter(property => property.status === "PUBLISHED"
+    && names.includes(normalizeRegionName(property.sectorName)));
 }

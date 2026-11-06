@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { MARS_REGIONS, listingsForRegion } from "@/data/marsRegions";
+import { MARS_REGIONS, listingsForRegion, apiListingsForRegion } from "@/data/marsRegions";
+import type { ApiProperty } from "@/types/api";
 import { SEED_PROPERTIES } from "@/data/properties";
 import { marsPosition } from "@/utils/marsCoordinates";
 
@@ -33,5 +34,50 @@ describe("Mars discovery", () => {
     const drafts = SEED_PROPERTIES.filter(p => p.region === r.catalogRegion && p.status !== "publicado");
     expect(drafts.map(p => p.id)).toContain("ares-valley");
     expect(listingsForRegion(r, SEED_PROPERTIES).map(p => p.id)).not.toContain("ares-valley");
+  });
+});
+
+const apiListing = (sectorName: string, overrides: Partial<ApiProperty> = {}): ApiProperty => ({
+  id: 101, title: "Habitat", description: "Anúncio publicado pelo formulário",
+  propertyType: "ICE_HOME", transactionType: "SALE", price: 123456.78,
+  bedrooms: 2, bathrooms: 1, habitableArea: 100, capacity: 4,
+  colonyName: "Colônia independente", sectorName, complexName: "Complexo", unitCode: "A1",
+  status: "PUBLISHED", createdAt: "2026-11-06T12:00:00", updatedAt: null,
+  ownerName: "Anunciante", ownerAccountType: "OWNER", details: null, images: [],
+  ...overrides,
+});
+
+describe("Discovery inventory from the backend", () => {
+  it.each(MARS_REGIONS)("counts an explicit sector for $name, including regions outside demo taxonomy", region => {
+    const property = apiListing(region.name);
+    expect(apiListingsForRegion(region, [property])).toEqual([property]);
+  });
+
+  it("ignores case, accent and spacing differences in the sector field", () => {
+    const region = MARS_REGIONS.find(r => r.id === "olympus-mons")!;
+    const property = apiListing("  ÓLYMPUS   mons  ");
+    expect(apiListingsForRegion(region, [property])).toEqual([property]);
+  });
+
+  it("does not infer membership from a colony, title, description, or a nearby landmark", () => {
+    const tharsis = MARS_REGIONS.find(r => r.id === "tharsis")!;
+    const olympus = apiListing("Olympus Mons", {
+      colonyName: "Tharsis", title: "Tharsis", description: "Tharsis",
+    });
+    expect(apiListingsForRegion(tharsis, [olympus])).toEqual([]);
+    expect(apiListingsForRegion(tharsis, [apiListing("Perto de Tharsis")])).toEqual([]);
+  });
+
+  it("excludes sold and inactive announcements", () => {
+    const region = MARS_REGIONS.find(r => r.id === "jezero-crater")!;
+    expect(apiListingsForRegion(region, [
+      apiListing(region.name, { status: "SOLD" }),
+      apiListing(region.name, { status: "INACTIVE" }),
+    ])).toEqual([]);
+  });
+
+  it("retains the explicitly documented broad catalog associations", () => {
+    const region = MARS_REGIONS.find(r => r.id === "hellas-planitia")!;
+    expect(apiListingsForRegion(region, [apiListing("Hellas")])).toHaveLength(1);
   });
 });

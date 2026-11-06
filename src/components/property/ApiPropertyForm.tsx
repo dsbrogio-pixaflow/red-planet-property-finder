@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/common/FormField";
 import { PROPERTY_TYPE_LABEL } from "@/components/property/ApiPropertyFilters";
+import { MARS_REGIONS } from "@/data/marsRegions";
 
 import type {
   ApiPropertyType,
@@ -153,7 +154,7 @@ export function ApiPropertyForm({
         images: remaining.map((image, i) => ({
           ...image,
           displayOrder: i,
-          primary: hasPrimary ? image.primary : i === 0,
+          primary: hasPrimary ? Boolean(image.primary) : i === 0,
         })),
       };
     });
@@ -366,12 +367,20 @@ export function ApiPropertyForm({
             <FormField id="api-sector" label="Setor ou região" required>
               <Input
                 id="api-sector"
+                list="api-mars-regions"
+                aria-describedby="api-sector-help"
                 maxLength={120}
                 required
                 value={values.sectorName}
                 onChange={(event) => update("sectorName", event.target.value)}
-                placeholder="Ex.: Setor Norte"
+                placeholder="Ex.: Olympus Mons ou Setor Norte"
               />
+              <datalist id="api-mars-regions">
+                {MARS_REGIONS.map(region => <option key={region.id} value={region.name} />)}
+              </datalist>
+              <p id="api-sector-help" className="text-xs text-muted-foreground">
+                Use o nome de uma região sugerida para que o anúncio publicado apareça na contagem do mapa de Marte.
+              </p>
             </FormField>
 
             <FormField id="api-complex" label="Complexo habitacional" required>
