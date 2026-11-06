@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/common/FormField";
 import { AuthCard, GoogleButton } from "@/components/auth/AuthCard";
-import { DEMO_NOTICE } from "@/services/authService";
+import { authService } from "@/services/authService";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [err, setErr] = useState<{ email?: string; pw?: string }>({});
@@ -34,13 +35,22 @@ function Login() {
       <form
         noValidate
         className="space-y-4"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           const n: typeof err = {};
           if (!/^\S+@\S+\.\S+$/.test(email)) n.email = "Informe um e-mail válido.";
           if (!pw) n.pw = "Informe a senha.";
           setErr(n);
-          if (!Object.keys(n).length) { toast.info(DEMO_NOTICE); setPw(""); }
+          if (!Object.keys(n).length) {
+            try {
+              await authService.login(email.trim(), pw);
+              setPw("");
+              toast.success("Login realizado.");
+              navigate({ to: "/" });
+            } catch (error) {
+              toast.error(error instanceof Error ? error.message : "Não foi possível entrar.");
+            }
+          }
         }}
       >
         <FormField id="l-email" label="E-mail" error={err.email}>

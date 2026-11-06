@@ -1,49 +1,152 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+
+import { useEffect, useState } from "react";
+
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+} from "@tanstack/react-router";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { toast } from "sonner";
-import { PageShell, PageHeading, DemoBadge } from "@/components/layout/PageShell";
-import { PropertyForm } from "@/components/property/PropertyForm";
-import { propertyService } from "@/services/propertyService";
-import { DEMO_USER_ADVERTISER } from "@/services/authService";
+
+import { Button } from "@/components/ui/button";
+import {
+  PageShell,
+  PageHeading,
+} from "@/components/layout/PageShell";
+
+import { ApiPropertyForm } from "@/components/property/ApiPropertyForm";
+
+import { authService } from "@/services/authService";
+import type { AuthUser } from "@/services/authService";
+
+import { propertyApi } from "@/services/propertyApi";
+
+import type { ApiPropertyRequest } from "@/services/propertyApi";
 
 export const Route = createFileRoute("/anuncios/novo")({
-  validateSearch: (s: Record<string, unknown>): { tipo?: "proprietario" | "imobiliaria" } => {
-    const tipo = s["tipo"] === "imobiliaria" ? "imobiliaria" : s["tipo"] === "proprietario" ? "proprietario" : undefined;
-    return tipo ? { tipo } : {};
-  },
   head: () => ({
     meta: [
-      { title: "Novo anúncio — Mars Real Estate" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "description", content: "Crie um anúncio demonstrativo de terreno em Marte." },
-      { property: "og:title", content: "Novo anúncio — Mars Real Estate" },
-      { property: "og:description", content: "Formulário demonstrativo de anúncio." },
+      { title: "Novo imóvel — Mars Real Estate" },
+      {
+        name: "description",
+        content: "Cadastre um imóvel nas colônias marcianas.",
+      },
     ],
   }),
+
   component: NewListing,
 });
 
 function NewListing() {
   const navigate = useNavigate();
-  const { tipo } = Route.useSearch();
-  const perfil = tipo === "imobiliaria" ? "imobiliária" : tipo === "proprietario" ? "proprietário" : undefined;
+  const queryClient = useQueryClient();
+
+  const [user, setUser] = useState<AuthUser | null | undefined>(
+    undefined
+  );
+
+  // Recuperar usuário autenticado
+  useEffect(() => {
+    const syncUser = () => {
+      setUser(authService.getCurrentUser());
+    };
+
+    syncUser();
+
+    return authService.subscribe(syncUser);
+  }, []);
+
+  const createMutation = useMutation({
+    mutationFn: (data: ApiPropertyRequest) =>
+      propertyApi.create(data),
+
+    onSuccess: async (property) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["properties", "published"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["properties", "mine"],
+      });
+
+      toast.success("Imóvel publicado com sucesso!");
+
+      await navigate({
+        to: "/terrenos/$id",
+        params: {
+          id: String(property.id),
+        },
+      });
+    },
+
+    onError: (error: Error) => {
+      toast.error(
+        error.message || "Não foi possível cadastrar o imóvel."
+      );
+    },
+  });
+
+  const handleSubmit = async (data: ApiPropertyRequest) => {
+    try {
+      await createMutation.mutateAsync(data);
+    } catch {
+      // O erro já é apresentado pela configuração onError.
+    }
+  };
+
+  const profile =
+    user?.accountType === "AGENCY"
+      ? "imobiliária"
+      : "proprietário";
+
+  if (user === undefined) {
+    return (
+      <PageShell>
+        <div className="mx-auto max-w-6xl px-4 py-20 text-center text-muted-foreground">
+          Verificando autenticação...
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (!user) {
+    return (
+      <PageShell>
+        <div className="mx-auto max-w-3xl space-y-5 px-4 py-20 text-center">
+          <PageHeading
+            eyebrow="Anunciar"
+            title="Entre na sua conta"
+            description="Você precisa estar autenticado para cadastrar imóveis."
+          />
+
+          <Button asChild variant="hero">
+            <Link to="/login">Entrar</Link>
+          </Button>
+        </div>
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell>
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-12 sm:px-6">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 sm:px-6">
+
         <PageHeading
           eyebrow="Anunciar"
-          title={perfil ? `Novo anúncio — ${perfil}` : "Novo anúncio"}
-          {...(perfil ? { description: `Fluxo de cadastro para ${perfil}.` } : {})}
+          title={`Novo imóvel — ${profile}`}
+          description="Preencha os dados do seu imóvel e publique seu anúncio em Marte."
         />
-        <DemoBadge>Modo demonstrativo: o anúncio fica apenas nesta sessão do navegador e some ao recarregar a página.</DemoBadge>
-        <PropertyForm
-          onCancel={() => navigate({ to: "/meus-anuncios" })}
-          onSubmit={(v) => {
-            propertyService.create(v, DEMO_USER_ADVERTISER);
-            toast.success("Anúncio criado nesta sessão (demonstração).");
-            navigate({ to: "/meus-anuncios" });
-          }}
+
+        <ApiPropertyForm
+          submitLabel="Publicar imóvel"
+          onCancel={() => navigate({ to: "/" })}
+          onSubmit={handleSubmit}
+          isSubmitting={createMutation.isPending}
         />
+
       </div>
     </PageShell>
   );

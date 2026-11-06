@@ -2,10 +2,6 @@ import type { ReactNode } from "react";
 import { authService } from "@/services/authService";
 import { ErrorState } from "@/components/common/States";
 
-/**
- * Preparado para futura autenticação. Em modo demonstrativo, sempre libera.
- * A verificação real de permissões acontecerá no servidor e nas políticas do banco.
- */
 export function ProtectedRoute({
   requireAdmin,
   children,
@@ -13,6 +9,9 @@ export function ProtectedRoute({
   requireAdmin?: boolean;
   children: ReactNode;
 }) {
+  if (!authService.getCurrentUser()) {
+    return <ErrorState title="Entre na sua conta para acessar esta área." />;
+  }
   if (requireAdmin && !authService.canAccessAdmin()) {
     return <ErrorState title="Acesso restrito a administradores." />;
   }

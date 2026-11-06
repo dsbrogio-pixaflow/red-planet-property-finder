@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Menu, X, User, ChevronDown, Building2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "./Logo";
+import { authService } from "@/services/authService";
 
 const NAV = [
   { to: "/terrenos", label: "Comprar" },
@@ -26,6 +27,8 @@ const linkClass = "text-sm text-muted-foreground transition-colors hover:text-fo
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState(() => authService.getCurrentUser());
+  useEffect(() => authService.subscribe(() => setUser(authService.getCurrentUser())), []);
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
@@ -59,16 +62,21 @@ export function Header() {
           </Link>
         </nav>
         <div className="hidden items-center gap-2 sm:flex">
-          <Button asChild variant="glass" size="sm">
-            <Link to="/login">
-              <User /> Entrar
-            </Link>
-          </Button>
-          <Button asChild variant="hero" size="sm">
-            <Link to="/cadastro">
-              Criar conta
-            </Link>
-          </Button>
+          {user ? (
+            <>
+              <Button asChild variant="glass" size="sm"><Link to="/meus-anuncios"><User /> {user.fullName}</Link></Button>
+              <Button variant="hero" size="sm" onClick={() => authService.logout()}>Sair</Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="glass" size="sm">
+                <Link to="/login"><User /> Entrar</Link>
+              </Button>
+              <Button asChild variant="hero" size="sm">
+                <Link to="/cadastro">Criar conta</Link>
+              </Button>
+            </>
+          )}
         </div>
         <Button
           variant="ghost"
@@ -136,12 +144,23 @@ export function Header() {
             </li>
           </ul>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:hidden">
-            <Button asChild variant="glass" onClick={() => setOpen(false)}>
-              <Link to="/login"><User /> Entrar</Link>
-            </Button>
-            <Button asChild variant="hero" onClick={() => setOpen(false)}>
-              <Link to="/cadastro">Criar conta</Link>
-            </Button>
+            {user ? (
+              <>
+                <Button asChild variant="glass" onClick={() => setOpen(false)}>
+                  <Link to="/meus-anuncios"><User /> {user.fullName}</Link>
+                </Button>
+                <Button variant="hero" onClick={() => { authService.logout(); setOpen(false); }}>Sair</Button>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="glass" onClick={() => setOpen(false)}>
+                  <Link to="/login"><User /> Entrar</Link>
+                </Button>
+                <Button asChild variant="hero" onClick={() => setOpen(false)}>
+                  <Link to="/cadastro">Criar conta</Link>
+                </Button>
+              </>
+            )}
           </div>
         </nav>
       )}

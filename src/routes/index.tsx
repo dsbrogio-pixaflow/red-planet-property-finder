@@ -4,9 +4,9 @@ import { ArrowRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageShell } from "@/components/layout/PageShell";
 import { SearchBar } from "@/components/common/SearchBar";
-import { PropertyCard } from "@/components/property/PropertyCard";
+import { usePublishedProperties } from "@/hooks/useApiProperties";
+import { ApiPropertyCard } from "@/components/property/ApiPropertyCard";
 import { HowItWorks } from "@/components/home/HowItWorks";
-import { useProperties } from "@/hooks/useProperties";
 import heroImg from "@/assets/hero-mars.jpg";
 
 export const Route = createFileRoute("/")({
@@ -26,8 +26,15 @@ export const Route = createFileRoute("/")({
 function Home() {
   const [q, setQ] = useState("");
   const navigate = useNavigate();
-  const featured = useProperties().filter((p) => p.status === "publicado").slice(0, 6);
+const {
+  data: properties = [],
+  isPending,
+  isError,
+  error,
+  refetch,
+} = usePublishedProperties();
 
+const featured = properties.slice(0, 6);
   return (
     <PageShell>
       <section className="relative isolate overflow-hidden">
@@ -61,18 +68,72 @@ function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6" aria-labelledby="destaques">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Em destaque</p>
-            <h2 id="destaques" className="mt-1 text-3xl font-semibold">Terrenos selecionados</h2>
-          </div>
-          <Link to="/terrenos" className="text-sm text-primary-glow hover:underline">Ver todos</Link>
-        </div>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((p) => <PropertyCard key={p.id} property={p} />)}
-        </div>
-      </section>
+<section
+  className="mx-auto max-w-7xl px-4 py-20 sm:px-6"
+  aria-labelledby="destaques"
+>
+  <div className="flex items-end justify-between gap-4">
+    <div>
+      <p className="text-xs uppercase tracking-[0.2em] text-primary">
+        Em destaque
+      </p>
+
+      <h2 id="destaques" className="mt-1 text-3xl font-semibold">
+        Imóveis em Marte
+      </h2>
+    </div>
+
+    <Link
+      to="/terrenos"
+      className="text-sm text-primary-glow hover:underline"
+    >
+      Ver todos
+    </Link>
+  </div>
+
+  {isPending && (
+    <div className="py-16 text-center text-muted-foreground">
+      Consultando os habitats disponíveis...
+    </div>
+  )}
+
+  {isError && (
+    <div className="py-16 text-center" role="alert">
+      <p className="text-destructive">
+        Não foi possível carregar os imóveis.
+      </p>
+
+      <p className="mt-2 text-sm text-muted-foreground">
+        {error instanceof Error ? error.message : "Erro de conexão com o servidor."}
+      </p>
+
+      <Button
+        variant="outline"
+        className="mt-5"
+        onClick={() => void refetch()}
+      >
+        Tentar novamente
+      </Button>
+    </div>
+  )}
+
+  {!isPending && !isError && featured.length === 0 && (
+    <div className="py-16 text-center text-muted-foreground">
+      Nenhum imóvel publicado no momento.
+    </div>
+  )}
+
+  {!isPending && !isError && featured.length > 0 && (
+    <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {featured.map((property) => (
+        <ApiPropertyCard
+          key={property.id}
+          property={property}
+        />
+      ))}
+    </div>
+  )}
+</section>
 
       <section className="starfield border-y border-border/60 bg-card/30" aria-labelledby="como">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6">

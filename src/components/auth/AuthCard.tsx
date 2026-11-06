@@ -20,9 +20,6 @@ export function AuthCard({ title, subtitle, children, footer }: { title: string;
           <Logo />
           <h1 className="mt-10 text-3xl font-semibold">{title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
-          <p role="note" className="mt-4 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-warning">
-            Modo demonstrativo — nenhuma conta real é criada ou acessada.
-          </p>
           <div className="mt-6">{children}</div>
           {footer && <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div>}
         </div>
