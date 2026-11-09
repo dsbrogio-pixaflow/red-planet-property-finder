@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/common/SearchBar";
 import { usePublishedProperties } from "@/hooks/useApiProperties";
 import { ApiPropertyCard } from "@/components/property/ApiPropertyCard";
 import { HowItWorks } from "@/components/home/HowItWorks";
+import { PropertyChat } from "@/components/chat/PropertyChat";
 import heroImg from "@/assets/hero-mars.jpg";
 
 export const Route = createFileRoute("/")({
@@ -147,6 +148,7 @@ const featured = properties.slice(0, 6);
           <div className="mt-10"><HowItWorks /></div>
         </div>
       </section>
+      <PropertyChat />
     </PageShell>
   );
 }

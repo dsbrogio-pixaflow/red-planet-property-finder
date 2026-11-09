@@ -1,25 +1,14 @@
-
 import { useEffect, useMemo, useState } from "react";
 
-import {
-  createFileRoute,
-  Link,
-  useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
-import {
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 
-import {
-  PageShell,
-  PageHeading,
-} from "@/components/layout/PageShell";
+import { PageShell, PageHeading } from "@/components/layout/PageShell";
 
 import { EmptyState } from "@/components/common/States";
 
@@ -27,17 +16,12 @@ import { ApiPropertyForm } from "@/components/property/ApiPropertyForm";
 
 import { useMyProperties } from "@/hooks/useApiProperties";
 
-import {
-  authService,
-  type AuthUser,
-} from "@/services/authService";
+import { authService, type AuthUser } from "@/services/authService";
 
 import { propertyApi } from "@/services/propertyApi";
 
-import type {
-  ApiProperty,
-  ApiPropertyRequest,
-} from "@/services/propertyApi";
+import type { ApiPropertyRequest } from "@/services/propertyApi";
+import type { ApiProperty } from "@/types/api";
 
 export const Route = createFileRoute("/anuncios/$id/editar")({
   head: () => ({
@@ -54,10 +38,7 @@ export const Route = createFileRoute("/anuncios/$id/editar")({
 });
 
 // Converter resposta da API para os dados do formulário
-function propertyToRequest(
-  property: ApiProperty
-): ApiPropertyRequest {
-
+function propertyToRequest(property: ApiProperty): ApiPropertyRequest {
   return {
     title: property.title,
     description: property.description,
@@ -76,41 +57,41 @@ function propertyToRequest(
     complexName: property.complexName,
     unitCode: property.unitCode,
 
-    details: property.details
+    ...(property.details
       ? {
-          hasParking: property.details.hasParking,
-          parkingSpaces: property.details.parkingSpaces,
-          parkingType: property.details.parkingType,
+          details: {
+            hasParking: property.details.hasParking,
+            parkingSpaces: property.details.parkingSpaces,
+            parkingType: property.details.parkingType,
 
-          radiationProtection:
-            property.details.radiationProtection,
+            radiationProtection: property.details.radiationProtection,
 
-          radiationProtectionLevel:
-            property.details.radiationProtectionLevel,
+            radiationProtectionLevel: property.details.radiationProtectionLevel,
 
-          shieldingMaterial:
-            property.details.shieldingMaterial,
+            shieldingMaterial: property.details.shieldingMaterial,
 
-          energySource: property.details.energySource,
+            energySource: property.details.energySource,
 
-          energyAutonomyHours:
-            property.details.energyAutonomyHours,
+            energyAutonomyHours: property.details.energyAutonomyHours,
 
-          energyStorageSystem:
-            property.details.energyStorageSystem,
+            energyStorageSystem: property.details.energyStorageSystem,
 
-          oxygenSystem: property.details.oxygenSystem,
+            oxygenSystem: property.details.oxygenSystem,
 
-          atmosphericPressureControl:
-            property.details.atmosphericPressureControl,
+            atmosphericPressureControl: property.details.atmosphericPressureControl,
 
-          waterRecycling: property.details.waterRecycling,
+            waterRecycling: property.details.waterRecycling,
 
-          environmentalControl:
-            property.details.environmentalControl,
+            environmentalControl: property.details.environmentalControl,
+          },
         }
-      : undefined,
-
+      : {}),
+    images: property.images.map((image) => ({
+      imageUrl: image.imageUrl,
+      caption: image.caption,
+      displayOrder: image.displayOrder,
+      primary: image.primary,
+    })),
   };
 }
 
@@ -123,12 +104,9 @@ function EditListing() {
 
   const propertyId = Number(id);
 
-  const validId =
-    Number.isSafeInteger(propertyId) && propertyId > 0;
+  const validId = Number.isSafeInteger(propertyId) && propertyId > 0;
 
-  const [user, setUser] = useState<AuthUser | null | undefined>(
-    undefined
-  );
+  const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
 
   // Acompanhar autenticação
   useEffect(() => {
@@ -148,27 +126,18 @@ function EditListing() {
     isError,
     error,
     refetch,
-  } = useMyProperties(
-    user !== undefined && user !== null && validId
-  );
+  } = useMyProperties(user !== undefined && user !== null && validId);
 
-  const property = properties.find(
-    (item) => item.id === propertyId
-  );
+  const property = properties.find((item) => item.id === propertyId);
 
   // Preparar dados iniciais do formulário
-  const initial = useMemo(
-    () => property ? propertyToRequest(property) : undefined,
-    [property]
-  );
+  const initial = useMemo(() => (property ? propertyToRequest(property) : undefined), [property]);
 
   // Atualizar imóvel
   const updateMutation = useMutation({
-    mutationFn: (data: ApiPropertyRequest) =>
-      propertyApi.update(propertyId, data),
+    mutationFn: (data: ApiPropertyRequest) => propertyApi.update(propertyId, data),
 
     onSuccess: async () => {
-
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: ["properties", "mine"],
@@ -191,9 +160,7 @@ function EditListing() {
     },
 
     onError: (error: Error) => {
-      toast.error(
-        error.message || "Não foi possível atualizar o imóvel."
-      );
+      toast.error(error.message || "Não foi possível atualizar o imóvel.");
     },
   });
 
@@ -208,9 +175,7 @@ function EditListing() {
   if (user === undefined) {
     return (
       <PageShell>
-        <div className="py-20 text-center text-muted-foreground">
-          Verificando autenticação...
-        </div>
+        <div className="py-20 text-center text-muted-foreground">Verificando autenticação...</div>
       </PageShell>
     );
   }
@@ -219,7 +184,6 @@ function EditListing() {
     return (
       <PageShell>
         <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-
           <PageHeading
             eyebrow="Área do anunciante"
             title="Entre na sua conta"
@@ -229,7 +193,6 @@ function EditListing() {
           <Button asChild variant="hero" className="mt-6">
             <Link to="/login">Entrar</Link>
           </Button>
-
         </div>
       </PageShell>
     );
@@ -239,19 +202,15 @@ function EditListing() {
     return (
       <PageShell>
         <div className="mx-auto max-w-3xl px-4 py-20">
-
           <EmptyState
             title="Identificador inválido"
             description="Não foi possível identificar o imóvel."
             action={
               <Button asChild variant="hero">
-                <Link to="/meus-anuncios">
-                  Voltar aos meus anúncios
-                </Link>
+                <Link to="/meus-anuncios">Voltar aos meus anúncios</Link>
               </Button>
             }
           />
-
         </div>
       </PageShell>
     );
@@ -271,25 +230,15 @@ function EditListing() {
     return (
       <PageShell>
         <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-
-          <p className="text-destructive">
-            Não foi possível carregar o imóvel.
-          </p>
+          <p className="text-destructive">Não foi possível carregar o imóvel.</p>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            {error instanceof Error
-              ? error.message
-              : "Erro de comunicação com o servidor."}
+            {error instanceof Error ? error.message : "Erro de comunicação com o servidor."}
           </p>
 
-          <Button
-            variant="outline"
-            className="mt-5"
-            onClick={() => void refetch()}
-          >
+          <Button variant="outline" className="mt-5" onClick={() => void refetch()}>
             Tentar novamente
           </Button>
-
         </div>
       </PageShell>
     );
@@ -299,19 +248,15 @@ function EditListing() {
     return (
       <PageShell>
         <div className="mx-auto max-w-3xl px-4 py-20">
-
           <EmptyState
             title="Anúncio não encontrado"
             description="Este imóvel não existe ou não pertence à sua conta."
             action={
               <Button asChild variant="hero">
-                <Link to="/meus-anuncios">
-                  Voltar aos meus anúncios
-                </Link>
+                <Link to="/meus-anuncios">Voltar aos meus anúncios</Link>
               </Button>
             }
           />
-
         </div>
       </PageShell>
     );
@@ -319,9 +264,7 @@ function EditListing() {
 
   return (
     <PageShell>
-
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 sm:px-6">
-
         <PageHeading
           eyebrow="Gerenciamento de imóveis"
           title={`Editar: ${property.title}`}
@@ -333,14 +276,10 @@ function EditListing() {
           initial={initial}
           submitLabel="Salvar alterações"
           isSubmitting={updateMutation.isPending}
-          onCancel={() =>
-            navigate({ to: "/meus-anuncios" })
-          }
+          onCancel={() => navigate({ to: "/meus-anuncios" })}
           onSubmit={handleSubmit}
         />
-
       </div>
-
     </PageShell>
   );
 }

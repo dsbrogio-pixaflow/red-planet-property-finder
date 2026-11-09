@@ -97,11 +97,6 @@ function NewListing() {
     }
   };
 
-  const profile =
-    user?.accountType === "AGENCY"
-      ? "imobiliária"
-      : "proprietário";
-
   if (user === undefined) {
     return (
       <PageShell>
@@ -136,8 +131,8 @@ function NewListing() {
 
         <PageHeading
           eyebrow="Anunciar"
-          title={`Novo imóvel — ${profile}`}
-          description="Preencha os dados do seu imóvel e publique seu anúncio em Marte."
+          title="Novo imóvel"
+          description="Preencha os dados do seu imóvel e publique seu anúncio."
         />
 
         <ApiPropertyForm

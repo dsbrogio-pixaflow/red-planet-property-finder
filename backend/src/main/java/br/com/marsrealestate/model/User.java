@@ -28,6 +28,10 @@ public class User {
     @Column(nullable = false, length = 20)
     private AccountType accountType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20, columnDefinition = "varchar(20) default 'USER'")
+    private UserRole role = UserRole.USER;
+
     @Column(length = 20)
     private String authProvider;
 
@@ -85,6 +89,12 @@ public class User {
     public void setAccountType(AccountType accountType) {
         this.accountType = accountType;
     }
+
+    public UserRole getRole() { return role; }
+
+    public void setRole(UserRole role) { this.role = role; }
+
+    public boolean isAdministrator() { return role == UserRole.ADMIN; }
 
     public String getAuthProvider() {
         return authProvider;

@@ -13,9 +13,9 @@ export const Route = createFileRoute("/login")({
       { title: "Entrar — Mars Real Estate" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "description", content: "Acesse sua conta demonstrativa na Mars Real Estate." },
+      { name: "description", content: "Acesse sua conta na Mars Real Estate." },
       { property: "og:title", content: "Entrar — Mars Real Estate" },
-      { property: "og:description", content: "Login demonstrativo da plataforma." },
+      { property: "og:description", content: "Login da plataforma." },
     ],
   }),
   component: Login,
@@ -29,7 +29,7 @@ function Login() {
   return (
     <AuthCard
       title="Entrar"
-      subtitle="Acesse seus anúncios marcianos."
+      subtitle=""
       footer={<>Não tem conta? <Link to="/cadastro" className="text-primary-glow hover:underline">Criar conta</Link></>}
     >
       <form

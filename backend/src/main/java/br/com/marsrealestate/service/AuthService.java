@@ -35,7 +35,7 @@ public class AuthService {
                 .trim()
                 .toLowerCase(Locale.ROOT);
 
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmailIgnoreCase(email)) {
             throw new IllegalArgumentException(
                     "Este e-mail já está cadastrado."
             );
@@ -63,7 +63,7 @@ public class AuthService {
                 .trim()
                 .toLowerCase(Locale.ROOT);
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "E-mail ou senha inválidos."
                 ));
@@ -91,6 +91,7 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getAccountType(),
+                user.getRole(),
                 token
         );
     }

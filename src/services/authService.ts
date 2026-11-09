@@ -22,6 +22,7 @@ export interface AuthUser {
   fullName: string;
   email: string;
   accountType: "OWNER" | "AGENCY";
+  role: "USER" | "ADMIN";
 }
 
 interface AuthSession {
@@ -31,13 +32,13 @@ interface AuthSession {
 
 const AUTH_STORAGE_KEY = "mars-auth-session";
 const AUTH_EVENT = "mars-auth-changed";
-const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "http://localhost:8081";
+const API_URL = import.meta.env["VITE_API_URL"]?.replace(/\/$/, "") ?? "http://localhost:8081";
 
 function getStoredSession(): AuthSession | null {
   if (typeof window === "undefined") return null;
   try {
     const value = window.sessionStorage.getItem(AUTH_STORAGE_KEY);
-    return value ? JSON.parse(value) as AuthSession : null;
+    return value ? (JSON.parse(value) as AuthSession) : null;
   } catch {
     return null;
   }
@@ -49,7 +50,9 @@ async function requestAuth(path: string, body: object): Promise<AuthUser> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = await response.json().catch(() => ({})) as Partial<AuthUser & { token: string; message: string }>;
+  const data = (await response.json().catch(() => ({}))) as Partial<
+    AuthUser & { token: string; message: string }
+  >;
   if (!response.ok) throw new Error(data.message || "Não foi possível concluir a autenticação.");
   if (!data.token || !data.id || !data.fullName || !data.email || !data.accountType) {
     throw new Error("Resposta de autenticação inválida.");
@@ -60,6 +63,7 @@ async function requestAuth(path: string, body: object): Promise<AuthUser> {
       fullName: data.fullName,
       email: data.email,
       accountType: data.accountType,
+      role: data.role === "ADMIN" ? "ADMIN" : "USER",
     },
     token: data.token,
   };
@@ -71,10 +75,35 @@ async function requestAuth(path: string, body: object): Promise<AuthUser> {
 export const authService = {
   getCurrentUser: (): AuthUser | null => getStoredSession()?.user ?? null,
   getToken: (): string | null => getStoredSession()?.token ?? null,
-  canAccessAdmin: (): boolean => getStoredSession()?.user.accountType === "AGENCY",
+  canAccessAdmin: (): boolean => getStoredSession()?.user.role === "ADMIN",
+  refreshCurrentUser: async (): Promise<AuthUser | null> => {
+    const session = getStoredSession();
+    if (!session?.token) return null;
+    const response = await fetch(`${API_URL}/api/users/me`, {
+      headers: { Accept: "application/json", Authorization: `Bearer ${session.token}` },
+      cache: "no-store",
+    });
+    if (getStoredSession()?.token !== session.token) return null;
+    if (response.status === 401) {
+      authService.logout();
+      return null;
+    }
+    if (!response.ok)
+      throw new Error("Não foi possível verificar suas permissões. Tente novamente.");
+    const user = (await response.json()) as AuthUser;
+    if (getStoredSession()?.token !== session.token) return null;
+    window.sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ ...session, user }));
+    window.dispatchEvent(new Event(AUTH_EVENT));
+    return user;
+  },
   login: (email: string, password: string) => requestAuth("/api/auth/login", { email, password }),
-  register: (fullName: string, email: string, phone: string, password: string, accountType: "OWNER" | "AGENCY") =>
-    requestAuth("/api/auth/register", { fullName, email, phone, password, accountType }),
+  register: (
+    fullName: string,
+    email: string,
+    phone: string,
+    password: string,
+    accountType: "OWNER" | "AGENCY",
+  ) => requestAuth("/api/auth/register", { fullName, email, phone, password, accountType }),
   logout: () => {
     if (typeof window !== "undefined") window.sessionStorage.removeItem(AUTH_STORAGE_KEY);
     if (typeof window !== "undefined") window.dispatchEvent(new Event(AUTH_EVENT));

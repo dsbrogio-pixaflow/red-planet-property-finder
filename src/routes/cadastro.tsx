@@ -13,9 +13,9 @@ export const Route = createFileRoute("/cadastro")({
       { title: "Criar conta — Mars Real Estate" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "description", content: "Cadastro demonstrativo na Mars Real Estate." },
+      { name: "description", content: "Cadastro de nova conta." },
       { property: "og:title", content: "Criar conta — Mars Real Estate" },
-      { property: "og:description", content: "Crie sua conta demonstrativa." },
+      { property: "og:description", content: "Crie sua conta" },
     ],
   }),
   component: Signup,
@@ -40,7 +40,7 @@ function Signup() {
           if (!f.phone.trim()) n.phone = "Informe seu telefone.";
           if (f.pw.length < 8) n.pw = "A senha deve ter ao menos 8 caracteres.";
           if (f.pw !== f.pw2) n.pw2 = "As senhas não coincidem.";
-          if (!f.terms) n.terms = "Aceite os termos demonstrativos.";
+          if (!f.terms) n.terms = "Aceite os termos de uso.";
           setErr(n);
           if (!Object.keys(n).length) {
             try {
@@ -61,7 +61,7 @@ function Signup() {
         <FormField id="c-pw2" label="Confirmar senha" error={err.pw2}><Input id="c-pw2" type="password" autoComplete="off" value={f.pw2} onChange={(e) => setF({ ...f, pw2: e.target.value })} /></FormField>
         <label className="flex items-start gap-2 text-sm">
           <input type="checkbox" className="mt-1 accent-primary" checked={f.terms} onChange={(e) => setF({ ...f, terms: e.target.checked })} />
-          Aceito os termos de uso demonstrativos.
+          Aceito os termos de uso.
         </label>
         {err.terms && <p role="alert" className="text-xs text-destructive">{err.terms}</p>}
         <Button type="submit" variant="hero" className="w-full">Criar conta</Button>

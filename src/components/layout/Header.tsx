@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Menu, X, User, ChevronDown, Building2, KeyRound } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Logo } from "./Logo";
 import { authService } from "@/services/authService";
 
@@ -18,59 +12,92 @@ const NAV = [
   { to: "/ajuda", label: "Ajuda" },
 ] as const;
 
-const ADVERTISE_OPTIONS = [
-  { tipo: "proprietario", label: "Sou proprietário", icon: KeyRound },
-  { tipo: "imobiliaria", label: "Sou imobiliária", icon: Building2 },
-] as const;
-
 const linkClass = "text-sm text-muted-foreground transition-colors hover:text-foreground";
 
 export function Header() {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState(() => authService.getCurrentUser());
-  useEffect(() => authService.subscribe(() => setUser(authService.getCurrentUser())), []);
+  useEffect(() => {
+    const unsubscribe = authService.subscribe(() => setUser(authService.getCurrentUser()));
+    if (authService.getToken()) void authService.refreshCurrentUser().catch(() => {});
+    return unsubscribe;
+  }, []);
+
+  function logout() {
+    authService.logout();
+    setOpen(false);
+    void navigate({ to: "/", replace: true });
+  }
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Logo />
         <nav className="hidden items-center gap-5 lg:flex" aria-label="Principal">
-          <Link to="/terrenos" className={linkClass} activeProps={{ className: "text-foreground" }} activeOptions={{ exact: true }}>
+          <Link
+            to="/terrenos"
+            className={linkClass}
+            activeProps={{ className: "text-foreground" }}
+            activeOptions={{ exact: true }}
+          >
             Comprar
           </Link>
-          <Link to="/descobrir" className={linkClass} activeProps={{ className: "text-foreground" }} activeOptions={{ exact: true }}>
+          <Link
+            to="/descobrir"
+            className={linkClass}
+            activeProps={{ className: "text-foreground" }}
+            activeOptions={{ exact: true }}
+          >
             Descobrir
           </Link>
-          <DropdownMenu>
-            <DropdownMenuTrigger className={`inline-flex items-center gap-1 ${linkClass}`}>
-              Anunciar <ChevronDown className="size-3.5" aria-hidden />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              {ADVERTISE_OPTIONS.map((opt) => (
-                <DropdownMenuItem key={opt.tipo} asChild>
-                  <Link to="/anuncios/novo" search={{ tipo: opt.tipo }} className="cursor-pointer">
-                    <opt.icon aria-hidden /> {opt.label}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Link to="/financiamento" className={linkClass} activeProps={{ className: "text-foreground" }} activeOptions={{ exact: true }}>
+          <Link
+            to="/anuncios/novo"
+            className={linkClass}
+            activeProps={{ className: "text-foreground" }}
+            activeOptions={{ exact: true }}
+          >
+            Anunciar
+          </Link>
+          <Link
+            to="/financiamento"
+            className={linkClass}
+            activeProps={{ className: "text-foreground" }}
+            activeOptions={{ exact: true }}
+          >
             Financiamento
           </Link>
-          <Link to="/ajuda" className={linkClass} activeProps={{ className: "text-foreground" }} activeOptions={{ exact: true }}>
+          <Link
+            to="/ajuda"
+            className={linkClass}
+            activeProps={{ className: "text-foreground" }}
+            activeOptions={{ exact: true }}
+          >
             Ajuda
           </Link>
         </nav>
         <div className="hidden items-center gap-2 sm:flex">
           {user ? (
             <>
-              <Button asChild variant="glass" size="sm"><Link to="/meus-anuncios"><User /> {user.fullName}</Link></Button>
-              <Button variant="hero" size="sm" onClick={() => authService.logout()}>Sair</Button>
+              {user.role === "ADMIN" && (
+                <Button asChild variant="glass" size="sm">
+                  <Link to="/admin">Painel de Administração</Link>
+                </Button>
+              )}
+              <Button asChild variant="glass" size="sm">
+                <Link to="/meus-anuncios">
+                  <User /> {user.fullName}
+                </Link>
+              </Button>
+              <Button variant="hero" size="sm" onClick={logout}>
+                Sair
+              </Button>
             </>
           ) : (
             <>
               <Button asChild variant="glass" size="sm">
-                <Link to="/login"><User /> Entrar</Link>
+                <Link to="/login">
+                  <User /> Entrar
+                </Link>
               </Button>
               <Button asChild variant="hero" size="sm">
                 <Link to="/cadastro">Criar conta</Link>
@@ -92,6 +119,17 @@ export function Header() {
       {open && (
         <nav className="border-t border-border/60 px-4 pb-4 lg:hidden" aria-label="Menu móvel">
           <ul className="flex flex-col gap-1 pt-3">
+            {user?.role === "ADMIN" && (
+              <li>
+                <Link
+                  to="/admin"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2 text-sm hover:bg-secondary"
+                >
+                  Painel de Administração
+                </Link>
+              </li>
+            )}
             {NAV.slice(0, 2).map((n) => (
               <li key={n.to}>
                 <Link
@@ -104,23 +142,13 @@ export function Header() {
               </li>
             ))}
             <li>
-              <p className="px-3 pb-1 pt-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <Link
+                to="/anuncios/novo"
+                onClick={() => setOpen(false)}
+                className="block rounded-md px-3 py-2 text-sm hover:bg-secondary"
+              >
                 Anunciar
-              </p>
-              <ul className="flex flex-col gap-1 pl-2">
-                {ADVERTISE_OPTIONS.map((opt) => (
-                  <li key={opt.tipo}>
-                    <Link
-                      to="/anuncios/novo"
-                      search={{ tipo: opt.tipo }}
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-secondary"
-                    >
-                      <opt.icon className="size-4" aria-hidden /> {opt.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              </Link>
             </li>
             {NAV.slice(2).map((n) => (
               <li key={n.to}>
@@ -147,14 +175,20 @@ export function Header() {
             {user ? (
               <>
                 <Button asChild variant="glass" onClick={() => setOpen(false)}>
-                  <Link to="/meus-anuncios"><User /> {user.fullName}</Link>
+                  <Link to="/meus-anuncios">
+                    <User /> {user.fullName}
+                  </Link>
                 </Button>
-                <Button variant="hero" onClick={() => { authService.logout(); setOpen(false); }}>Sair</Button>
+                <Button variant="hero" onClick={logout}>
+                  Sair
+                </Button>
               </>
             ) : (
               <>
                 <Button asChild variant="glass" onClick={() => setOpen(false)}>
-                  <Link to="/login"><User /> Entrar</Link>
+                  <Link to="/login">
+                    <User /> Entrar
+                  </Link>
                 </Button>
                 <Button asChild variant="hero" onClick={() => setOpen(false)}>
                   <Link to="/cadastro">Criar conta</Link>

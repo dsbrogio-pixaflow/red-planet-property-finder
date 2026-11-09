@@ -1,6 +1,6 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { propertyApi } from "@/services/propertyApi";
+import { authService } from "@/services/authService";
 
 export function usePublishedProperties() {
   return useQuery({
@@ -28,8 +28,9 @@ export function useApiProperty(id: number | null) {
 
 // Listar anúncios do usuário autenticado
 export function useMyProperties(enabled = true) {
+  const user = authService.getCurrentUser();
   return useQuery({
-    queryKey: ["properties", "mine"],
+    queryKey: ["properties", "mine", user?.id ?? null, user?.role ?? "USER"],
     queryFn: propertyApi.listMine,
     enabled: typeof window !== "undefined" && enabled,
     staleTime: 15_000,

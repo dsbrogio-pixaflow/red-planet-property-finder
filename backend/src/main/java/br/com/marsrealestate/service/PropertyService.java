@@ -5,7 +5,6 @@ import br.com.marsrealestate.dto.PropertyRequest;
 import br.com.marsrealestate.dto.PropertyResponse;
 import br.com.marsrealestate.model.*;
 import br.com.marsrealestate.repository.PropertyRepository;
-import br.com.marsrealestate.repository.UserRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -20,14 +19,14 @@ import java.util.List;
 public class PropertyService {
 
     private final PropertyRepository propertyRepository;
-    private final UserRepository userRepository;
+    private final UserAccessService access;
 
     public PropertyService(
             PropertyRepository propertyRepository,
-            UserRepository userRepository) {
+            UserAccessService access) {
 
         this.propertyRepository = propertyRepository;
-        this.userRepository = userRepository;
+        this.access = access;
     }
 
     // Cadastrar imóvel
@@ -93,7 +92,7 @@ public class PropertyService {
 
         User user = getAuthenticatedUser(jwt);
 
-        return propertyRepository.findByUserId(user.getId())
+        return (user.isAdministrator() ? propertyRepository.findAll() : propertyRepository.findByUserId(user.getId()))
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -318,13 +317,7 @@ public class PropertyService {
     // Recuperar usuário autenticado
     private User getAuthenticatedUser(Jwt jwt) {
 
-        return userRepository.findByEmail(jwt.getSubject())
-                .orElseThrow(() ->
-                    new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED,
-                        "Usuário autenticado não encontrado."
-                    )
-                );
+        return access.currentUser(jwt);
     }
 
     // Verificar propriedade do imóvel
@@ -338,7 +331,7 @@ public class PropertyService {
                     )
                 );
 
-        if (!property.getUser().getId().equals(user.getId())) {
+        if (!user.isAdministrator() && !property.getUser().getId().equals(user.getId())) {
 
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,

@@ -1,26 +1,49 @@
-# Red Planet Property Finder
+﻿# Red Planet Property Finder
 
-Implement exactly the screenshot and nothing else
+Aplicação demonstrativa de anúncios fictícios em Marte, com frontend React +
+TanStack + Vite e backend Java 21 + Spring Boot + PostgreSQL no Neon.
 
-This project was built with [Lovable](https://lovable.dev).
+## Executar localmente
 
-**Live app**: https://red-planet-property-finder.lovable.app
+Requisitos: **Git**, **Node.js 22.12 ou superior com npm**, **JDK 21** e um banco
+**PostgreSQL no Neon**. O Maven é baixado pelo wrapper do projeto.
 
-## Build with Lovable
+No PowerShell:
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/fbda85bb-a54c-4fed-9431-650fa15c9bb0).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```powershell
+git clone https://github.com/dsbrogio-pixaflow/red-planet-property-finder.git
+cd red-planet-property-finder
+npm.cmd ci
 ```
+
+Siga o [guia de instalação e execução](backend/README.md) para configurar o
+`.env.local`, gerar o segredo JWT e preparar as tabelas na primeira execução.
+
+Depois da configuração, mantenha dois terminais abertos:
+
+**Terminal 1 — na pasta `backend`:**
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+**Terminal 2 — na raiz do projeto:**
+
+```powershell
+npm.cmd run dev -- --host localhost --port 8080 --strictPort
+```
+
+- Site: http://localhost:8080
+- Status do backend: http://localhost:8081/api/status
+
+Para encerrar, pressione **Ctrl+C nos dois terminais**.
+
+## Lovable
+
+Este projeto é conectado ao [Lovable](https://lovable.dev).
+
+- [Aplicação publicada](https://red-planet-property-finder.lovable.app)
+- [Editor do projeto](https://lovable.dev/projects/fbda85bb-a54c-4fed-9431-650fa15c9bb0)
+
+Evite reescrever o histórico publicado, pois os commits da branch conectada
+sincronizam com o Lovable.

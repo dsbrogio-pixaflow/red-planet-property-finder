@@ -13,6 +13,7 @@ public interface PropertyRepository
 
     // Imóveis de um anunciante
     List<Property> findByUserId(Long userId);
+    boolean existsByUserId(Long userId);
 
     // Imóveis publicados
     List<Property> findByStatus(PropertyStatus status);

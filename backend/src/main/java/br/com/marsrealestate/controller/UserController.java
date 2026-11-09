@@ -2,7 +2,7 @@
 package br.com.marsrealestate.controller;
 
 import br.com.marsrealestate.model.User;
-import br.com.marsrealestate.repository.UserRepository;
+import br.com.marsrealestate.service.UserAccessService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,31 +17,25 @@ import java.util.Map;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserAccessService access;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserAccessService access) {
+        this.access = access;
     }
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(
             @AuthenticationPrincipal Jwt jwt) {
 
-        String email = jwt.getSubject();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                    new IllegalArgumentException(
-                        "Usuário não encontrado."
-                    )
-                );
+        User user = access.currentUser(jwt);
 
         Map<String, Object> response = Map.of(
             "id", user.getId(),
             "fullName", user.getFullName(),
             "email", user.getEmail(),
             "phone", user.getPhone(),
-            "accountType", user.getAccountType().name()
+            "accountType", user.getAccountType().name(),
+            "role", user.getRole().name()
         );
 
         return ResponseEntity.ok(response);

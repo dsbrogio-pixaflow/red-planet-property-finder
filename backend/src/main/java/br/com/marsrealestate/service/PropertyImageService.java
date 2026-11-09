@@ -24,13 +24,16 @@ public class PropertyImageService {
 
     private final PropertyImageRepository imageRepository;
     private final PropertyRepository propertyRepository;
+    private final UserAccessService access;
 
     public PropertyImageService(
             PropertyImageRepository imageRepository,
-            PropertyRepository propertyRepository) {
+            PropertyRepository propertyRepository,
+            UserAccessService access) {
 
         this.imageRepository = imageRepository;
         this.propertyRepository = propertyRepository;
+        this.access = access;
     }
 
     // Cadastrar imagem
@@ -158,6 +161,8 @@ public class PropertyImageService {
     // Verificar propriedade do imóvel
     private Property getOwnedProperty(Long propertyId, Jwt jwt) {
 
+        var user = access.currentUser(jwt);
+
         Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() ->
                     new ResponseStatusException(
@@ -166,8 +171,7 @@ public class PropertyImageService {
                     )
                 );
 
-        if (!property.getUser().getEmail()
-                .equalsIgnoreCase(jwt.getSubject())) {
+        if (!user.isAdministrator() && !property.getUser().getId().equals(user.getId())) {
 
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,

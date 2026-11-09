@@ -40,8 +40,8 @@ const TOPICS: { value: string; title: string; body: React.ReactNode }[] = [
     title: "Como anunciar um terreno",
     body: (
       <>
-        No menu <strong>Anunciar</strong>, escolha <em>Sou proprietário</em> ou{" "}
-        <em>Sou imobiliária</em> e preencha o formulário com título, preço em reais, área, região e
+        Clique em <strong>Anunciar</strong> para abrir diretamente a página de anúncio
+        e preencha o formulário com título, preço em reais, área, região e
         fotos. O anúncio aparece em{" "}
         <Link to="/meus-anuncios" className="text-primary-glow hover:underline">Meus anúncios</Link>{" "}
         apenas nesta sessão do navegador (modo demonstrativo).
