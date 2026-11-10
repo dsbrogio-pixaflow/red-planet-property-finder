@@ -157,13 +157,27 @@ reinicie os dois processos.
   aleatoriamente o excedente desse lote até restarem 10 por conta.
 - **Chatbot:** funciona sem chave de IA, consultando o catálogo. Para habilitar
   interpretação por IA, acrescente ao `.env.local` as variáveis abaixo e reinicie
-  o backend. Use os valores de um provedor compatível com Chat Completions:
+  o backend. Para usar a Groq:
 
 ```dotenv
-MARS_AI_BASE_URL=https://HOST_DO_PROVEDOR/v1
-MARS_AI_API_KEY=SUA_CHAVE_DO_PROVEDOR
-MARS_AI_MODEL=ID_DO_MODELO_HABILITADO
+MARS_AI_BASE_URL=https://api.groq.com/openai/v1
+MARS_AI_API_KEY=SUA_CHAVE_DA_GROQ
+MARS_AI_MODEL=openai/gpt-oss-120b
 ```
+
+A chave é lida somente pelo backend. Não use prefixo `VITE_` nem faça commit
+do `.env.local`. Após salvar, encerre o backend com Ctrl+C e execute novamente
+`.\mvnw.cmd spring-boot:run` dentro de `backend`.
+
+Na página inicial, abra **Fale Conosco** e pergunte, por exemplo, “Quantos imóveis
+há em Tharsis?”. Quando a interpretação por IA funcionar, o chat exibirá
+**IA conectada ao catálogo**. Preços, quantidades e detalhes continuam sendo
+calculados a partir dos anúncios publicados. Se a Groq estiver indisponível,
+o chat continua no modo de consulta ao catálogo.
+
+A integração usa a [API compatível com Chat Completions da Groq](https://console.groq.com/docs/openai).
+Você pode trocar o modelo por outro habilitado na sua conta, consultando a
+[lista de modelos da Groq](https://console.groq.com/docs/models).
 
 ## Problemas comuns
 

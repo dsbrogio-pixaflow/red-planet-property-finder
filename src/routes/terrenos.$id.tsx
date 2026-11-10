@@ -602,7 +602,12 @@ function Detail() {
 
             {/* INFORMAÇÕES */}
 
-            <dl className="border-y border-border/60 py-4 text-sm">
+            <dl className="space-y-3 border-y border-border/60 py-4 text-sm">
+
+              <div className="flex items-center justify-between gap-2">
+                <dt className="text-muted-foreground">ID do anúncio</dt>
+                <dd className="font-medium">#{property.id}</dd>
+              </div>
 
               <div className="flex items-center justify-between gap-2">
 
