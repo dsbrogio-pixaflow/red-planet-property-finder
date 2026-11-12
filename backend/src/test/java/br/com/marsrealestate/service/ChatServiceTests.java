@@ -34,9 +34,9 @@ class ChatServiceTests {
     @Test
     void countsOnlyExplicitPublishedSectorsAndSeparatesSaleFromRent() {
         var reply = chat.answer(new ChatRequest("Quantos imóveis há em Tharsis?", null));
-        assertTrue(reply.answer().contains("2 imóvel(is)"));
-        assertTrue(reply.answer().contains("Venda: 1 anúncio(s)"));
-        assertTrue(reply.answer().contains("Aluguel: 1 anúncio(s)"));
+        assertTrue(reply.answer().contains("2 imóveis disponíveis"));
+        assertTrue(reply.answer().contains("À venda: 1 opção"));
+        assertTrue(reply.answer().contains("Para aluguel: 1 opção"));
         assertTrue(reply.answer().contains("1.234,56"));
         assertEquals("catalog", reply.mode());
         assertEquals(List.of(1L, 2L), reply.sources().stream().map(s -> s.id()).toList());
@@ -45,7 +45,7 @@ class ChatServiceTests {
     @Test
     void titleDoesNotImplyGeographicMembership() {
         var reply = chat.answer(new ChatRequest("Quantos terrenos em Olympus Mons?", List.of()));
-        assertTrue(reply.answer().contains("1 imóvel(is)"));
+        assertTrue(reply.answer().contains("1 imóvel disponível"));
         assertEquals(3L, reply.sources().getFirst().id());
         assertFalse(ChatService.sameRegion("Tharsis", "Olympus Mons"));
     }
@@ -63,14 +63,15 @@ class ChatServiceTests {
         var reply = chat.answer(new ChatRequest("Qual o valor?", List.of("Detalhes do imóvel #1")));
         assertTrue(reply.answer().contains("Habitat Olympus Mons (#1)"));
         assertTrue(reply.answer().contains("1.234,56"));
-        assertTrue(reply.answer().contains("80 m²"));
+        assertFalse(reply.answer().contains("80 m²"));
+        assertTrue(reply.answer().contains("à venda por"));
         assertEquals(1, reply.sources().size());
     }
 
     @Test
     void findsListingByTitleAndRejectsUnknownIds() {
         var reply = chat.answer(new ChatRequest("Fale sobre Domo Norte", null));
-        assertTrue(reply.answer().contains("Preço de aluguel"));
+        assertTrue(reply.answer().contains("para aluguel por"));
         assertEquals(2L, reply.sources().getFirst().id());
         var missing = chat.answer(new ChatRequest("Imóvel #9999", null));
         assertTrue(missing.answer().contains("Não encontrei"));
@@ -81,7 +82,7 @@ class ChatServiceTests {
     void unknownOrEmptyRegionDoesNotFallBackToWholeCatalog() {
         for (String region : List.of("Arcadia Planitia", "Região inexistente")) {
             var reply = chat.answer(new ChatRequest("Quantos terrenos em " + region + "?", null));
-            assertTrue(reply.answer().contains("Não há imóveis publicados"));
+            assertTrue(reply.answer().contains("não há imóveis publicados"));
             assertTrue(reply.sources().isEmpty());
         }
     }
@@ -92,7 +93,7 @@ class ChatServiceTests {
         assertEquals(1, rental.sources().size());
         assertEquals(2L, rental.sources().getFirst().id());
         var all = chat.answer(new ChatRequest("Todos os imóveis", List.of("Imóvel #1")));
-        assertTrue(all.answer().contains("4 imóvel(is)"));
+        assertTrue(all.answer().contains("4 imóveis disponíveis"));
         var regional = chat.answer(new ChatRequest("Todos os imóveis em Tharsis", List.of()));
         assertEquals(2, regional.sources().size());
     }
@@ -110,8 +111,8 @@ class ChatServiceTests {
     @Test
     void handlesEmptyCatalogAndUnrelatedQuestions() {
         when(properties.getPublishedProperties()).thenReturn(List.of());
-        assertTrue(chat.answer(new ChatRequest("Imóveis disponíveis", null)).answer().contains("Não há imóveis publicados"));
-        assertTrue(chat.answer(new ChatRequest("Conte uma piada", null)).answer().contains("Posso consultar preços"));
+        assertTrue(chat.answer(new ChatRequest("Imóveis disponíveis", null)).answer().contains("não há imóveis publicados"));
+        assertTrue(chat.answer(new ChatRequest("Conte uma piada", null)).answer().contains("Posso ajudar"));
     }
 
     @Test
@@ -119,9 +120,27 @@ class ChatServiceTests {
         when(properties.getPublishedProperties()).thenReturn(java.util.stream.LongStream.rangeClosed(1, 8)
                 .mapToObj(i -> property(i, "Casa " + i, "Tharsis", "100", TransactionType.SALE, PropertyStatus.PUBLISHED)).toList());
         var reply = chat.answer(new ChatRequest("Quais imóveis estão disponíveis?", null));
-        assertTrue(reply.answer().contains("8 imóvel(is)"));
-        assertTrue(reply.answer().contains("Mostrando 5 de 8"));
+        assertTrue(reply.answer().contains("8 imóveis disponíveis"));
+        assertTrue(reply.answer().contains("5 das 8 opções"));
         assertEquals(5, reply.sources().size());
+    }
+
+    @Test
+    void detailsRemainAvailableAfterAConcisePriceFollowUp() {
+        var reply = chat.answer(new ChatRequest("Mais detalhes", List.of("Imóvel #1", "Qual o valor?")));
+        assertTrue(reply.answer().contains("80 m²"));
+        assertTrue(reply.answer().contains("2 dormitórios e 1 banheiro"));
+        assertTrue(reply.answer().contains("4 pessoas"));
+        assertEquals(1L, reply.sources().getFirst().id());
+    }
+
+    @Test
+    void equalPricesAreShownOnceInsteadOfAnArtificialRange() {
+        var reply = chat.answer(new ChatRequest("Preços de venda em Tharsis", null));
+        assertTrue(reply.answer().contains("À venda: 1 opção, por"));
+        assertFalse(reply.answer().contains("com preços entre"));
+        assertFalse(reply.answer().contains("imóvel(is)"));
+        assertFalse(reply.answer().contains("anúncio(s)"));
     }
 
     private static PropertyResponse property(long id, String title, String sector, String price,

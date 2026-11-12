@@ -46,8 +46,9 @@ public class ChatService {
         Intent query = classified.orElse(local);
         String mode = classified.isPresent() ? "ai" : "catalog";
         if (query.intent().equals("help")) return new ChatResponse(
-                "Posso consultar preços, detalhes e quantidades de imóveis publicados. Pergunte, por exemplo: "
-                        + "‘Quantos imóveis há em Tharsis?’, ‘Quais os preços em Utopia Planitia?’ ou informe o título/ID de um anúncio. "
+                "Olá! Posso ajudar você a encontrar um imóvel em Marte. Quer conhecer as opções de uma região, "
+                        + "comparar preços ou saber mais sobre um anúncio? Você pode perguntar, por exemplo: "
+                        + "‘O que está disponível em Tharsis?’ ou ‘Quanto custa o imóvel #12?’. "
                         + "Os imóveis desta plataforma são fictícios.", mode, List.of());
 
         var matches = catalog.stream()
@@ -56,37 +57,55 @@ public class ChatService {
                 .filter(p -> query.transaction() == null || p.transactionType().name().equals(query.transaction())).toList();
         String scope = query.region() == null || query.propertyId() != null ? "no catálogo" : "na região " + query.region();
         if (matches.isEmpty()) return new ChatResponse(query.propertyId() != null
-                ? "Não encontrei um anúncio publicado com esse ID. Informe outro título ou ID."
-                : "Não há imóveis publicados " + scope + transactionLabel(query.transaction()) + ". "
-                    + "A consulta considera o setor cadastrado; regiões próximas não entram na contagem.", mode, List.of());
+                ? "Não encontrei um anúncio publicado com esse ID. Ele pode ter saído do catálogo. Quer tentar outro título ou ID?"
+                : "No momento, não há imóveis publicados " + scope + transactionLabel(query.transaction()) + ". "
+                    + "Quer consultar outra região?", mode, List.of());
 
         if (query.propertyId() != null) {
             var p = matches.getFirst();
+            String purpose = p.transactionType() == TransactionType.RENT ? "para aluguel" : "à venda";
+            if (query.intent().equals("prices")) {
+                return new ChatResponse("O " + p.title() + " (#" + p.id() + ") está " + purpose
+                        + " por " + currency(p.price()) + ".\nQuer conhecer os detalhes desse imóvel?", mode, sources(matches));
+            }
             return new ChatResponse(p.title() + " (#" + p.id() + ")\n"
+                    + "Esse imóvel está " + purpose + " por " + currency(p.price()) + ", no setor " + p.sectorName() + ".\n\n"
                     + p.description() + "\n\n"
-                    + "Preço de " + (p.transactionType() == TransactionType.RENT ? "aluguel" : "venda") + ": " + currency(p.price())
-                    + ".\nÁrea habitável: " + number(p.habitableArea()) + " m²; dormitórios: " + p.bedrooms()
-                    + "; banheiros: " + p.bathrooms() + "; capacidade: " + p.capacity() + " pessoas.\n"
-                    + "Localização cadastrada: " + p.colonyName() + ", setor " + p.sectorName()
+                    + "São " + number(p.habitableArea()) + " m² de área habitável, com "
+                    + quantity(p.bedrooms(), "dormitório", "dormitórios") + " e "
+                    + quantity(p.bathrooms(), "banheiro", "banheiros") + ". A capacidade é de "
+                    + quantity(p.capacity(), "pessoa", "pessoas") + ".\n"
+                    + "Fica em " + p.colonyName() + ", setor " + p.sectorName()
                     + ", " + p.complexName() + ", unidade " + p.unitCode() + ".\n"
-                    + "Veja o anúncio para consultar fotos e infraestrutura.", mode, sources(matches));
+                    + "No anúncio abaixo, você pode conferir as fotos e a infraestrutura.", mode, sources(matches));
         }
 
-        String answer = "Encontrei " + matches.size() + " imóvel(is) publicado(s) " + scope + transactionLabel(query.transaction()) + ".";
+        String answer = query.intent().equals("prices")
+                ? "Sobre os preços " + scope + transactionLabel(query.transaction()) + ":"
+                : "Encontrei " + quantity(matches.size(), "imóvel disponível", "imóveis disponíveis")
+                    + " " + scope + transactionLabel(query.transaction()) + ".";
         // Separate sale/rent ranges: a rental quote is never presented as a purchase price.
         for (TransactionType type : TransactionType.values()) {
             var prices = matches.stream().filter(p -> p.transactionType() == type).map(PropertyResponse::price).toList();
-            if (!prices.isEmpty()) answer += "\n" + (type == TransactionType.RENT ? "Aluguel" : "Venda")
-                    + ": " + prices.size() + " anúncio(s), de " + currency(Collections.min(prices))
-                    + " a " + currency(Collections.max(prices)) + ".";
+            if (!prices.isEmpty()) {
+                var min = Collections.min(prices);
+                var max = Collections.max(prices);
+                answer += "\n• " + (type == TransactionType.RENT ? "Para aluguel" : "À venda")
+                        + ": " + quantity(prices.size(), "opção", "opções") + ", "
+                        + (min.compareTo(max) == 0 ? "por " + currency(min)
+                            : "com preços entre " + currency(min) + " e " + currency(max)) + ".";
+            }
         }
         if (!query.intent().equals("count")) {
-            answer += "\n\n" + matches.stream().limit(5).map(p -> "• " + p.title() + " (#" + p.id() + "): "
+            answer += (matches.size() == 1 ? "\n\nEsta é a opção que encontrei:\n" : "\n\nVeja algumas opções:\n")
+                    + matches.stream().limit(5).map(p -> "• " + p.title() + " (#" + p.id() + "): "
                     + currency(p.price()) + " — " + (p.transactionType() == TransactionType.RENT ? "aluguel" : "venda")
                     + ", setor " + p.sectorName() + ".").collect(Collectors.joining("\n"));
-            if (matches.size() > 5) answer += "\nMostrando 5 de " + matches.size() + ". Informe uma região para refinar.";
+            if (matches.size() > 5) answer += "\nEstas são 5 das " + matches.size() + " opções disponíveis.";
         }
-        answer += "\nInforme o título ou ID para saber mais sobre um imóvel.";
+        answer += query.intent().equals("count")
+                ? "\nQuer ver os detalhes de alguma dessas opções? Pode me dizer o título ou o ID."
+                : "\nQual dessas opções chamou sua atenção? Diga o título ou o ID que eu conto mais.";
         return new ChatResponse(answer, mode, sources(matches));
     }
 
@@ -150,6 +169,10 @@ public class ChatService {
 
     private static String transactionLabel(String transaction) {
         return transaction == null ? "" : transaction.equals("RENT") ? " para aluguel" : " para venda";
+    }
+
+    private static String quantity(int count, String singular, String plural) {
+        return count + " " + (count == 1 ? singular : plural);
     }
 
     private static String currency(BigDecimal value) {
