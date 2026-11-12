@@ -2,6 +2,7 @@
 package br.com.marsrealestate.config;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,10 +16,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 import java.util.List;
+import java.util.Arrays;
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    private final List<String> allowedOrigins;
+
+    public SecurityConfig(@Value("${mars.cors.allowed-origins:http://localhost:5173,http://localhost:8080}") String origins) {
+        this.allowedOrigins = Arrays.stream(origins.split(","))
+                .map(String::trim).filter(origin -> !origin.isEmpty()).toList();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -65,12 +74,7 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(
-        List.of(
-        "http://localhost:5173",
-        "http://localhost:8080"
-    )
-);
+        configuration.setAllowedOrigins(allowedOrigins);
 
         configuration.setAllowedMethods(
             List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")

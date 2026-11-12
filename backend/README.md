@@ -179,6 +179,65 @@ A integração usa a [API compatível com Chat Completions da Groq](https://cons
 Você pode trocar o modelo por outro habilitado na sua conta, consultando a
 [lista de modelos da Groq](https://console.groq.com/docs/models).
 
+## Deploy: frontend na Vercel e backend Java
+
+O caminho das consultas é **site na Vercel → API Spring Boot → PostgreSQL no Neon**.
+Publicar o frontend não inicia o backend da pasta `backend`. A API precisa estar
+em execução em uma hospedagem com Java 21, acessível por HTTPS.
+O `.env.local` da sua máquina não é enviado pelo Git nem configura a hospedagem.
+
+No serviço que hospeda o backend, configure:
+
+```dotenv
+DATABASE_URL=URL_POSTGRESQL_COM_POOL_DO_NEON
+MARS_JWT_SECRET=SEU_SEGREDO_BASE64
+MARS_CORS_ALLOWED_ORIGINS=https://red-planet-property-finder.vercel.app
+```
+
+Use a URL completa do Neon com `sslmode=require`. Mantenha os segredos somente
+no ambiente do backend. A variável `PORT` da hospedagem é respeitada; sem ela,
+a API usa a porta 8081. Para o chatbot com IA, configure também `MARS_AI_BASE_URL`,
+`MARS_AI_API_KEY` e `MARS_AI_MODEL` nesse serviço.
+
+Na Vercel, em **Settings → Environment Variables**, configure para Production:
+
+```dotenv
+VITE_API_URL=https://DOMINIO_PUBLICO_DO_BACKEND
+```
+
+Essa variável aponta para a API, sem `/api` no final; não recebe a URL PostgreSQL.
+Faça um novo deploy do frontend após alterá-la. Para permitir mais de um domínio
+no backend, separe as origens de `MARS_CORS_ALLOWED_ORIGINS` por vírgulas, sem
+caminhos nem barra final. Inclua explicitamente as URLs de preview que utilizar.
+
+Confira `https://DOMINIO_PUBLICO_DO_BACKEND/api/status` e
+`https://DOMINIO_PUBLICO_DO_BACKEND/api/public/properties`. O primeiro verifica a
+API; o segundo também consulta o banco. Se o primeiro funciona e o segundo
+falha, confira os logs do backend, as credenciais do Neon e o schema existente.
+Não habilite `init-db` automaticamente em produção.
+
+### Publicar o backend no Render
+
+O `backend/Dockerfile` compila a API com Java 21 e inicia o JAR. Ele não inclui
+o `.env.local` na imagem. Uma opção de hospedagem é um
+[Web Service Docker no Render](https://render.com/docs/docker):
+
+1. Envie as alterações deste projeto para o seu repositório GitHub.
+2. No Render, escolha **New → Web Service** e conecte o repositório.
+3. Selecione a branch com as alterações, informe **Root Directory: `backend`**
+   e escolha o runtime **Docker**. O Dockerfile é `Dockerfile`, relativo a essa pasta.
+4. Adicione as variáveis do backend listadas acima. Use os valores reais do seu
+   `.env.local`, sem aspas extras. Não precisa criar outro banco no Render.
+5. Configure **Health Check Path: `/api/status`** e inicie o deploy.
+6. Quando a API estiver disponível, teste `/api/status` e `/api/public/properties`
+   na URL HTTPS fornecida pelo Render.
+7. Copie essa URL para `VITE_API_URL` na Vercel, no ambiente Production, e faça
+   um novo deploy do frontend.
+
+O build da imagem não consulta o banco; a conexão e a validação das tabelas
+acontecem quando a API inicia. Selecione o plano da hospedagem conforme os
+recursos necessários e os preços apresentados no painel.
+
 ## Problemas comuns
 
 | Problema                                   | O que conferir                                                                                                              |
